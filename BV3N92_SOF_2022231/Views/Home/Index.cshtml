@@ -2,7 +2,34 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid">
+    <div class="row align-items-start">
+        <div class="col-sm-2">
+            <partial name="SideBar" />
+        </div>
+
+        <div class="col-sm-8">
+            <h1>Match View</h1>
+        </div>
+    </div>
 </div>
+
+
+
+
+
+
+
+
+@*<div class="col align-items-center">
+    <div class="col justify-content-start">
+        <div class="col-sm-2">
+            <partial name="SideBar"></partial>
+        </div>
+    </div>
+    <div class="col align-self-end">
+        <div class="col-sm-8">
+            Match
+        </div>
+    </div>
+</div>*@

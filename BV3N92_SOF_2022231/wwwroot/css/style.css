@@ -1,0 +1,32 @@
+﻿.container {
+    padding: 10px;
+    width: 100%;
+    margin: 0px;
+}
+
+
+.col-sm-2 {
+    background: rgb(159,84,232);
+    background: linear-gradient(28deg, rgba(159,84,232,1) 0%, rgba(108,107,236,1) 100%);
+    color: white;
+    margin: 0px;
+    width: 225px;
+    margin-right:10px;
+    border-right-width: 1px;
+    border-right-style: groove;
+    border-right-color: lightgray;
+}
+
+.col-sm-8 {
+    text-align: center;
+    color: #5d5cef;
+    margin: 0px;
+    width: max-content;
+    height: max-content
+}
+
+.col {
+    padding: 5px;
+}
+
+
