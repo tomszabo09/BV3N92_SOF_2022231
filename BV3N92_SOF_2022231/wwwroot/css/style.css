@@ -1,7 +1,11 @@
 ﻿.container {
-    padding: 10px;
     width: 100%;
     margin: 0px;
+}
+
+div.container {
+    width: 100%;
+    padding:0px;
 }
 
 
@@ -11,7 +15,7 @@
     color: white;
     margin: 0px;
     width: 225px;
-    margin-right:10px;
+    margin-right: 10px;
     border-right-width: 1px;
     border-right-style: groove;
     border-right-color: lightgray;
@@ -27,6 +31,9 @@
 
 .col {
     padding: 5px;
+}
+.row {
+    
 }
 
 
