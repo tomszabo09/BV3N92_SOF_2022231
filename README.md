@@ -1,4 +1,1 @@
-# Dating app developers
-Csongor Dobák,
-Gábor Rajnai,
-Tamás Szabó
+# BV3N92_SOF_2022231
