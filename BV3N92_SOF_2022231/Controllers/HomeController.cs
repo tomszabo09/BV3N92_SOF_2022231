@@ -28,6 +28,31 @@ namespace Backend.Controllers
             return View();
         }
 
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+        public IActionResult Delete()
+        {
+            return View();
+        }
+
+        public IActionResult Manage()
+        {
+            return View();
+        }
+
+        public IActionResult Chat()
+        {
+            return View();
+        }
+
+        public IActionResult Bonus()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
