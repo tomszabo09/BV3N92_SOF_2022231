@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models
 {
@@ -10,7 +11,7 @@ namespace Backend.Models
     {
         None, Elementary, HighSchool, Bachelor, Master, PhD
     }
-    public class SiteUser
+    public class SiteUser : IdentityUser
     {
         public string Id { get; set; }
 
@@ -33,11 +34,11 @@ namespace Backend.Models
 
         [StringLength(500)]
         public string Bio { get; set; }
-
-        public Dictionary<Education, string> Education { get; set; } //ex.: Bachelor, University of Obuda
+        
+        //virtual public Dictionary<Education, string> Education { get; set; } //ex.: Bachelor, University of Obuda
 
         [Required]
-        public List<Picture> Pictures { get; set; }
+        public ICollection<Picture> Pictures { get; set; }
 
         public SiteUser()
         {
@@ -46,6 +47,7 @@ namespace Backend.Models
     }
     public class Picture
     {
+        public string PictureId { get; set; }
         public string PhotoContentType { get; set; }
 
         public byte[] PhotoData { get; set; }
