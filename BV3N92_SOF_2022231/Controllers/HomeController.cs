@@ -1,4 +1,5 @@
 ﻿using Backend.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,21 +8,28 @@ namespace Backend.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly UserManager<SiteUser> _userManager;
+        
+        public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager)
         {
             _logger = logger;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
         {
             return View();
         }
-
-        public IActionResult Privacy()
+        
+        
+        public async Task<IActionResult> Privacy()
         {
+            var principal = this.User;
+            var user = await _userManager.GetUserAsync(principal);
+            ;
             return View();
         }
+
 
         public IActionResult Main()
         {
@@ -57,6 +65,11 @@ namespace Backend.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult GetImage(string userid)
+        {
+            return new FileContentResult(new byte[10], "image/jpeg");
         }
     }
 }
