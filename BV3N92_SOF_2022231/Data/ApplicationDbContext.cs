@@ -12,16 +12,5 @@ namespace Backend.Data
 			: base(options)
 		{
 		}
-
-		protected override void OnModelCreating(ModelBuilder builder)
-		{
-			builder.Entity<Picture>(p =>
-			p.HasOne(u => u.User)
-			.WithMany(p => p.Pictures)
-			.HasForeignKey(p => p.UserId)
-			.OnDelete(DeleteBehavior.Cascade));
-
-			base.OnModelCreating(builder);
-		}
 	}
 }
