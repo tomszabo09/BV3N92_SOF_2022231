@@ -16,7 +16,7 @@
                @* <img class="card-img-top" src="@Url.Action("GetImage","Home", new{userId = user.Id})" alt="Card image cap" style="width:100px; height:100px; ">*@
                 <div class="card-body">
                     <h5 class="card-title">@user.FirstName</h5>
-                    <h5 class="card-title">@user.Id</h5>
+                    <h7 class="card-title">@user.Id</h7>
                     @if (await UserManager.IsInRoleAsync(user, "Admin"))
                     {
                         <a href="/Admin/RemoveAdminRights?userId=@user.Id" class="btn btn-danger">Remove Admin Rights</a>
