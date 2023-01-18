@@ -97,6 +97,7 @@ namespace Backend.Areas.Identity.Pages.Account
 			[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
 			public string ConfirmPassword { get; set; }
 			public IFormFile ProfilePicture { get; set; }
+			public ICollection<IFormFile> UserPictures { get; set; }
 		}
 
 
@@ -127,6 +128,19 @@ namespace Backend.Areas.Identity.Pages.Account
 				blobClient.SetAccessTier(AccessTier.Cool);
 
 				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
+
+				int photoCount = user.Pictures.Count;
+
+				foreach (var photo in Input.UserPictures)
+				{
+					blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + photoCount++);
+					using (var uploadFileStream = photo.OpenReadStream())
+					{
+						await blobClient.UploadAsync(uploadFileStream, true);
+					}
+					blobClient.SetAccessTier(AccessTier.Cool);
+					user.Pictures.Add(new Picture() { PhotoUrl = blobClient.Uri.AbsoluteUri, User = user, UserId = user.Id });
+				}
 
 				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
 				await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
