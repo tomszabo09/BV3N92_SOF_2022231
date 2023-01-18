@@ -21,6 +21,12 @@ namespace Backend.Data
 			.HasForeignKey(p => p.UserId)
 			.OnDelete(DeleteBehavior.Cascade));
 
+			builder.Entity<SiteUser>(u =>
+			u.HasMany(p => p.Pictures)
+			.WithOne(u => u.User)
+			.HasForeignKey(p => p.UserId)
+			.OnDelete(DeleteBehavior.Cascade));
+
 			base.OnModelCreating(builder);
 		}
 	}
