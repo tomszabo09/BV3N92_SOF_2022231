@@ -118,9 +118,6 @@ namespace Backend.Areas.Identity.Pages.Account
 				user.Bio = Input.Bio;
 				user.Orientation = Input.Orientation;
 				user.Gender = Input.Gender;
-				user.ProfilePicture = new Picture();
-				user.ProfilePicture.User = user;
-				user.ProfilePicture.UserId = user.Id;
 
 				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture");
 				using (var uploadFileStream = Input.ProfilePicture.OpenReadStream())
@@ -128,7 +125,8 @@ namespace Backend.Areas.Identity.Pages.Account
 					await blobClient.UploadAsync(uploadFileStream, true);
 				}
 				blobClient.SetAccessTier(AccessTier.Cool);
-				user.ProfilePicture.PhotoUrl = blobClient.Uri.AbsoluteUri;
+
+				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
 
 				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
 				await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

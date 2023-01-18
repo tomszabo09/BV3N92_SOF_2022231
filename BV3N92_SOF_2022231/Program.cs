@@ -20,11 +20,10 @@ builder.Services.AddDefaultIdentity<SiteUser>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 0;
     options.Password.RequiredUniqueChars = 0;
-}).AddEntityFrameworkStores<ApplicationDbContext>();
+}).AddRoles<IdentityRole>()
+	.AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddControllersWithViews();
-
-
-
 
 
 var app = builder.Build();
