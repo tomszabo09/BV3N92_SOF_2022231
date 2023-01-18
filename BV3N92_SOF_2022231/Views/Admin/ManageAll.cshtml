@@ -12,19 +12,22 @@
 	@foreach (var user in Model.Users)
 	{
 		<li style="float: left; list-style-type: none; margin:10px">
-			<div class="card" style="width: 18rem;">
-				<img class="card-img-top" src="@user.ProfilePictureUrl" alt="Card image cap" style="width:100px; height:100px; ">
+			<div class="card" style="width: 18rem; background-color:black">
+				<img class="card-img-top" src="@user.ProfilePictureUrl" alt="Card image cap" style="width:100px; height:100px; opacity:0.70; border:none;">
 				<div class="card-body">
-					<h5 class="card-title">@user.FirstName</h5>
-					<h7 class="card-title">@user.Id</h7>
+					<h5 class="card-title text-white">@user.FirstName</h5>
+					<h7 class="card-title text-white">@user.Id</h7>
 					@if (await UserManager.IsInRoleAsync(user, "Admin"))
 					{
-						<a href="/Admin/RemoveAdminRights?userId=@user.Id" class="btn btn-danger">Remove Admin Rights</a>
+						<a href="/Admin/RemoveAdminRights?userId=@user.Id" class="btn btn-warning">Remove Admin Rights</a>
 					}
 					else
 					{
 						<a href="/Admin/GrantAdminRights?userId=@user.Id" class="btn btn-success">Grant Admin Rights</a>
 					}
+					<br />
+					<br />
+					<a href="#" class="btn btn-danger">Delete Profil</a>
 				</div>
 			</div>
 
