@@ -33,7 +33,6 @@ namespace Backend.Controllers
 			return RedirectToAction(nameof(ManageAll));
 		}
 
-
 		[Authorize(Roles = "Admin")]
 		public IActionResult ControlPanel()
 		{
@@ -57,11 +56,17 @@ namespace Backend.Controllers
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GrantAdminRights(string userId)
 		{
-
 			var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
 			await _userManager.AddToRoleAsync(user, "Admin");
 			return RedirectToAction(nameof(ManageAll));
 		}
 
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeleteUser(string userId)
+		{
+			var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
+			await _userManager.DeleteAsync(user);
+			return RedirectToAction(nameof(ManageAll));
+		}
 	}
 }
