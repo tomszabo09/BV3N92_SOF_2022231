@@ -1,6 +1,33 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@model UserManager<SiteUser>
+@inject UserManager<SiteUser> UserManager
+
+@{
     ViewData["Title"] = "Manage Profiles";
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>Settings for every registered account...</p>
+
+<ul>
+    @foreach (var user in Model.Users)
+    {
+        <li style="float: left; list-style-type: none; margin:10px">
+            <div class="card" style="width: 18rem;">
+               @* <img class="card-img-top" src="@Url.Action("GetImage","Home", new{userId = user.Id})" alt="Card image cap" style="width:100px; height:100px; ">*@
+                <div class="card-body">
+                    <h5 class="card-title">@user.FirstName</h5>
+                    <h5 class="card-title">@user.Id</h5>
+                    @if (await UserManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        <a href="/Admin/RemoveAdminRights?userId=@user.Id" class="btn btn-danger">Remove Admin Rights</a>
+                    }
+                    else
+                    {
+                        <a href="/Admin/GrantAdminRights?userId=@user.Id" class="btn btn-success">Grant Admin Rights</a>
+                    }
+                </div>
+            </div>
+            
+        </li>
+    }
+</ul>
