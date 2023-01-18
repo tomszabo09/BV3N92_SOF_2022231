@@ -1,12 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
-@model UserManager<SiteUser>
-
-
-@{
-    ViewData["Title"] = "Admin Control Panel";
-}
-
-<header>
+﻿<header>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <h1>
@@ -18,9 +10,7 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageAll">Manage Profiles</a>
-                    </li>
+                    
                 </ul>
                 <partial name="_LoginPartial" />
             </div>
@@ -28,6 +18,15 @@
     </nav>
 </header>
 
-<h1>@ViewData["Title"]</h1>
 
+<h1 class="mainH1">
+    Where the grade point average doesn't matter
+</h1>
 
+<br />
+<br />
+<div class="d-flex justify-content-center">
+    <button type="button" class="btn btn-light btn-lg">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </button>
+</div>
