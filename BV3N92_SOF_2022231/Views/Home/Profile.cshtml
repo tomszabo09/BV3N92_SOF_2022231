@@ -43,18 +43,4 @@
             </div>
         </div>
     </div>
-
-    <br />
-    <div class="col d-flex justify-content-center">
-    <h1 style="color:white">My Pictures</h1>
-    </div>
-    <br />
-    <div class="col d-flex justify-content-center">
-    @foreach (var picture in currentUser.Pictures)
-    {
-        <div class="card" style="width: 10rem; border-width:2px; margin:10px">
-            <img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
-        </div>
-    }
-    </div>
 </body>
