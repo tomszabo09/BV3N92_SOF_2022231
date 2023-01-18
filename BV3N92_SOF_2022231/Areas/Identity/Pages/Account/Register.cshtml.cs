@@ -19,169 +19,178 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace Backend.Areas.Identity.Pages.Account
 {
-    public class RegisterModel : PageModel
-    {
-        private readonly SignInManager<SiteUser> _signInManager;
-        private readonly UserManager<SiteUser> _userManager;
-        private readonly IUserStore<SiteUser> _userStore;
-        private readonly IUserEmailStore<SiteUser> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+	public class RegisterModel : PageModel
+	{
+		private readonly SignInManager<SiteUser> _signInManager;
+		private readonly UserManager<SiteUser> _userManager;
+		private readonly IUserStore<SiteUser> _userStore;
+		private readonly IUserEmailStore<SiteUser> _emailStore;
+		private readonly ILogger<RegisterModel> _logger;
+		private readonly IEmailSender _emailSender;
+		BlobServiceClient serviceClient;
+		BlobContainerClient containerClient;
 
-        public RegisterModel(
-            UserManager<SiteUser> userManager,
-            IUserStore<SiteUser> userStore,
-            SignInManager<SiteUser> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
-        {
-            _userManager = userManager;
-            _userStore = userStore;
-            _emailStore = GetEmailStore();
-            _signInManager = signInManager;
-            _logger = logger;
-            _emailSender = emailSender;
-        }
-        
-        [BindProperty]
-        public InputModel Input { get; set; }
-        public string ReturnUrl { get; set; }
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
+		public RegisterModel(
+			UserManager<SiteUser> userManager,
+			IUserStore<SiteUser> userStore,
+			SignInManager<SiteUser> signInManager,
+			ILogger<RegisterModel> logger,
+			IEmailSender emailSender)
+		{
+			_userManager = userManager;
+			_userStore = userStore;
+			_emailStore = GetEmailStore();
+			_signInManager = signInManager;
+			_logger = logger;
+			_emailSender = emailSender;
+			serviceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=prog5photos;AccountKey=Ftc4d98WqInHIgHUIQ4KhKGBMqte+mNkCpurvwoWewb0NIUGyXLOAwKkp+jWLvN6b5jNzvzvaQZt+ASttNbuPw==;EndpointSuffix=core.windows.net");
+			containerClient = serviceClient.GetBlobContainerClient("photos");
+		}
 
-        public class InputModel
-        {
-            [Display(Name = "Write about yourself (Bio)")]
-            [StringLength(500)]
-            public string Bio { get; set; }
+		[BindProperty]
+		public InputModel Input { get; set; }
+		public string ReturnUrl { get; set; }
+		public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-            [Required]
-            [Display(Name = "Age")]
-            [Range(18, int.MaxValue)]
-            public int Age { get; set; }
+		public class InputModel
+		{
+			[Display(Name = "Write about yourself (Bio)")]
+			[StringLength(500)]
+			public string Bio { get; set; }
 
-            [Display(Name = "My Sexual Orientation is")]
-            [Required]
-            public Orientation Orientation { get; set; }
+			[Required]
+			[Display(Name = "Age")]
+			[Range(18, int.MaxValue)]
+			public int Age { get; set; }
 
-
-            [Required]
-            [Display(Name = "Gender")]
-            public Gender Gender { get; set; }
-
-            [Required]
-            [Display(Name = "First Name")]
-            public string FirstName { get; set; }
-
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Email")]
-            public string Email { get; set; }
-
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
-            public string Password { get; set; }
-
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-            public IFormFile ProfilPicture { get; set; }
-        }
+			[Display(Name = "My Sexual Orientation is")]
+			[Required]
+			public Orientation Orientation { get; set; }
 
 
-        public async Task OnGetAsync(string returnUrl = null)
-        {
-            ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        }
+			[Required]
+			[Display(Name = "Gender")]
+			public Gender Gender { get; set; }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-        {
-            returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
-            {
-                var user = CreateUser();
-                user.FirstName = Input.FirstName;
-                user.Age = Input.Age;
-                user.Bio = Input.Bio;
-                user.Orientation = Input.Orientation;
-                user.Gender = Input.Gender;
-                
-                //user.ProfilePicture.PhotoContentType = Input.ProfilPicture.ContentType;
-                //byte[] data = new byte[(int)Input.ProfilPicture.Length];
-                //using (var stream = Input.ProfilPicture.OpenReadStream())
-                //{
-                //    stream.Read(data, 0, data.Length);
-                //}
-                //user.ProfilePicture.PhotoData = data;
+			[Required]
+			[Display(Name = "First Name")]
+			public string FirstName { get; set; }
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, Input.Password);
+			[Required]
+			[EmailAddress]
+			[Display(Name = "Email")]
+			public string Email { get; set; }
 
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User created a new account with password.");
+			[Required]
+			[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+			[DataType(DataType.Password)]
+			[Display(Name = "Password")]
+			public string Password { get; set; }
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+			[DataType(DataType.Password)]
+			[Display(Name = "Confirm password")]
+			[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+			public string ConfirmPassword { get; set; }
+			public IFormFile ProfilePicture { get; set; }
+		}
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
+		public async Task OnGetAsync(string returnUrl = null)
+		{
+			ReturnUrl = returnUrl;
+			ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+		}
 
-            // If we got this far, something failed, redisplay form
-            return Page();
-        }
+		public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+		{
+			returnUrl ??= Url.Content("~/");
+			ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+			if (ModelState.IsValid)
+			{
+				var user = CreateUser();
+				user.FirstName = Input.FirstName;
+				user.Age = Input.Age;
+				user.Bio = Input.Bio;
+				user.Orientation = Input.Orientation;
+				user.Gender = Input.Gender;
+				user.ProfilePicture = new Picture();
+				user.ProfilePicture.User = user;
+				user.ProfilePicture.UserId = user.Id;
 
-        private SiteUser CreateUser()
-        {
-            try
-            {
-                return Activator.CreateInstance<SiteUser>();
-            }
-            catch
-            {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(SiteUser)}'. " +
-                    $"Ensure that '{nameof(SiteUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
-            }
-        }
+				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture");
+				using (var uploadFileStream = Input.ProfilePicture.OpenReadStream())
+				{
+					await blobClient.UploadAsync(uploadFileStream, true);
+				}
+				blobClient.SetAccessTier(AccessTier.Cool);
+				user.ProfilePicture.PhotoUrl = blobClient.Uri.AbsoluteUri;
 
-        private IUserEmailStore<SiteUser> GetEmailStore()
-        {
-            if (!_userManager.SupportsUserEmail)
-            {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
-            }
-            return (IUserEmailStore<SiteUser>)_userStore;
-        }
-    }
+				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+				await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+				var result = await _userManager.CreateAsync(user, Input.Password);
+
+				if (result.Succeeded)
+				{
+					_logger.LogInformation("User created a new account with password.");
+
+					var userId = await _userManager.GetUserIdAsync(user);
+					var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+					code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+					var callbackUrl = Url.Page(
+						"/Account/ConfirmEmail",
+						pageHandler: null,
+						values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+						protocol: Request.Scheme);
+
+					await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+						$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+					if (_userManager.Options.SignIn.RequireConfirmedAccount)
+					{
+						return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+					}
+					else
+					{
+						await _signInManager.SignInAsync(user, isPersistent: false);
+						return LocalRedirect(returnUrl);
+					}
+				}
+				foreach (var error in result.Errors)
+				{
+					ModelState.AddModelError(string.Empty, error.Description);
+				}
+			}
+
+			// If we got this far, something failed, redisplay form
+			return Page();
+		}
+
+		private SiteUser CreateUser()
+		{
+			try
+			{
+				return Activator.CreateInstance<SiteUser>();
+			}
+			catch
+			{
+				throw new InvalidOperationException($"Can't create an instance of '{nameof(SiteUser)}'. " +
+					$"Ensure that '{nameof(SiteUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+					$"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+			}
+		}
+
+		private IUserEmailStore<SiteUser> GetEmailStore()
+		{
+			if (!_userManager.SupportsUserEmail)
+			{
+				throw new NotSupportedException("The default UI requires a user store with email support.");
+			}
+			return (IUserEmailStore<SiteUser>)_userStore;
+		}
+	}
 }

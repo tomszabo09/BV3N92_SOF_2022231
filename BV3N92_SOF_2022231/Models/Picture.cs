@@ -12,7 +12,7 @@ namespace Backend.Models
 		public string PhotoUrl { get; set; }
 
 		[ForeignKey(nameof(User))]
-		public int UserId { get; set; }
+		public string UserId { get; set; }
 
 		[NotMapped]
 		public virtual SiteUser User { get; set; }
