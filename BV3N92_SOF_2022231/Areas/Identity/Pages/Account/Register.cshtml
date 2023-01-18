@@ -92,7 +92,7 @@
             <div class="mb-3">
                 <div class="p-3 mb-2 bg-info text-white">My Photos</div>
                 <br />
-                <input class="form-control" type="file" id="formFileMultiple" multiple>
+                <input class="form-file" type="file" id="formFileMultiple" asp-for="Input.UserPictures" multiple accept=".jpg,.jpeg,.png">
             </div>
             <br />
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Continue</button>
