@@ -41,12 +41,13 @@ namespace Backend.Models
         [Required]
         public Picture ProfilePicture { get; set; }
 
-        [Required]
+        [NotMapped]
         public ICollection<Picture> Pictures { get; set; }
 
         public SiteUser()
         {
             Id = Guid.NewGuid().ToString();
+            this.Pictures = new List<Picture>();
         }
     }
     public class Picture
