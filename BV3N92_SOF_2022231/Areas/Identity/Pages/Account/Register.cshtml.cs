@@ -42,14 +42,16 @@ namespace Backend.Areas.Identity.Pages.Account
 			ILogger<RegisterModel> logger,
 			IEmailSender emailSender)
 		{
+			var builder = WebApplication.CreateBuilder();
+
 			_userManager = userManager;
 			_userStore = userStore;
 			_emailStore = GetEmailStore();
 			_signInManager = signInManager;
 			_logger = logger;
 			_emailSender = emailSender;
-			serviceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=prog5photos;AccountKey=Ftc4d98WqInHIgHUIQ4KhKGBMqte+mNkCpurvwoWewb0NIUGyXLOAwKkp+jWLvN6b5jNzvzvaQZt+ASttNbuPw==;EndpointSuffix=core.windows.net");
-			containerClient = serviceClient.GetBlobContainerClient("photos");
+			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
+			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
 		}
 
 		[BindProperty]
@@ -71,7 +73,6 @@ namespace Backend.Areas.Identity.Pages.Account
 			[Display(Name = "My Sexual Orientation is")]
 			[Required]
 			public Orientation Orientation { get; set; }
-
 
 			[Required]
 			[Display(Name = "Gender")]
@@ -96,6 +97,8 @@ namespace Backend.Areas.Identity.Pages.Account
 			[Display(Name = "Confirm password")]
 			[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
 			public string ConfirmPassword { get; set; }
+
+			[Required]
 			public IFormFile ProfilePicture { get; set; }
 			public ICollection<IFormFile> UserPictures { get; set; }
 		}
