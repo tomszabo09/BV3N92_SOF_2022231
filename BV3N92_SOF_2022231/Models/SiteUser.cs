@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models
 {
@@ -36,16 +37,32 @@ namespace Backend.Models
 
         [StringLength(500)]
         public string Bio { get; set; }
+        
+        [Required]
+        public Picture ProfilePicture { get; set; }
 
         [Required]
-        public string ProfilePicture { get; set; }
-
-        [Required]
-        public ICollection<string> Pictures { get; set; }
+        public ICollection<Picture> Pictures { get; set; }
 
         public SiteUser()
         {
             Id = Guid.NewGuid().ToString();
+        }
+    }
+    public class Picture
+    {
+        [ForeignKey(nameof(User))]
+        public int UserId { get; set; }
+        [NotMapped]
+        public virtual SiteUser User { get; set; }
+        [Key]
+        public string PictureId { get; set; }
+        [Required]
+        public string PhotoUrl { get; set; }
+
+        public Picture()
+        {
+            PictureId = Guid.NewGuid().ToString();
         }
     }
 }
