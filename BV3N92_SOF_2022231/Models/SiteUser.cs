@@ -37,24 +37,15 @@ namespace Backend.Models
         [StringLength(500)]
         public string Bio { get; set; }
 
-        //virtual public Dictionary<Education, string> Education { get; set; } //ex.: Bachelor, University of Obuda
-        
         [Required]
-        public Picture ProfilePicture { get; set; }
+        public string ProfilePicture { get; set; }
 
         [Required]
-        public ICollection<Picture> Pictures { get; set; }
+        public ICollection<string> Pictures { get; set; }
 
         public SiteUser()
         {
             Id = Guid.NewGuid().ToString();
         }
-    }
-    public class Picture
-    {
-        public string PictureId { get; set; }
-        public string PhotoContentType { get; set; }
-
-        public byte[] PhotoData { get; set; }
     }
 }
