@@ -21,7 +21,6 @@ namespace Backend.Controllers
             return View();
         }
         
-        
         public async Task<IActionResult> Privacy()
         {
             var principal = this.User;

@@ -6,7 +6,7 @@ namespace Backend.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-        
+        public DbSet<Picture> Pictures { get; set; }
         public DbSet<SiteUser> Users { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
