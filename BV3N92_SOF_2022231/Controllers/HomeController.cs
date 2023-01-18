@@ -16,6 +16,10 @@ namespace Backend.Controllers
             _userManager = userManager;
         }
 
+        public IActionResult Visitor()
+        {
+            return View();
+        }
         public IActionResult Index()
         {
             return View();
