@@ -19,7 +19,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            
+
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -27,7 +27,9 @@
             </div>
         </nav>
     </header>
-    <h1 style="color:white">My Profile</h1>
+    <div class="col d-flex justify-content-center">
+        <h1 style="color:white">My Profil</h1>
+    </div>
     <div class="col d-flex justify-content-center">
         <div class="card" style="width: 18rem;">
             <img class="card-img-top" src="@currentUser.ProfilePictureUrl" alt="Card image cap">
@@ -40,5 +42,19 @@
                 <a href="#" class="btn btn-warning">Delete Profil</a>
             </div>
         </div>
+    </div>
+
+    <br />
+    <div class="col d-flex justify-content-center">
+    <h1 style="color:white">My Pictures</h1>
+    </div>
+    <br />
+    <div class="col d-flex justify-content-center">
+    @foreach (var picture in currentUser.Pictures)
+    {
+        <div class="card" style="width: 10rem; border-width:2px; margin:10px">
+            <img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+        </div>
+    }
     </div>
 </body>
