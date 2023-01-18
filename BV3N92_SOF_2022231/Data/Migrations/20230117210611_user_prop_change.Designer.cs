@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230117210611_user_prop_change")]
+    partial class user_prop_change
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,16 +29,22 @@ namespace Backend.Data.Migrations
                     b.Property<string>("PictureId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PhotoUrl")
+                    b.Property<string>("PhotoContentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<byte[]>("PhotoData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("SiteUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("PictureId");
 
-                    b.ToTable("Pictures");
+                    b.HasIndex("SiteUserId");
+
+                    b.ToTable("Picture");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -279,6 +287,13 @@ namespace Backend.Data.Migrations
                     b.HasDiscriminator().HasValue("SiteUser");
                 });
 
+            modelBuilder.Entity("Backend.Models.Picture", b =>
+                {
+                    b.HasOne("Backend.Models.SiteUser", null)
+                        .WithMany("Pictures")
+                        .HasForeignKey("SiteUserId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -339,6 +354,11 @@ namespace Backend.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("ProfilePicture");
+                });
+
+            modelBuilder.Entity("Backend.Models.SiteUser", b =>
+                {
+                    b.Navigation("Pictures");
                 });
 #pragma warning restore 612, 618
         }

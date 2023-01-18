@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models
 {
@@ -6,11 +8,16 @@ namespace Backend.Models
     {
         Female, Male, NonBinary
     }
+
+    public enum Orientation
+    {
+        Straight,Gay, Lesbian, Bisexual, Heterosexual, NonBinary,Asexual,Pansexual,Queer
+    }
     public enum Education
     {
         None, Elementary, HighSchool, Bachelor, Master, PhD
     }
-    public class SiteUser
+    public class SiteUser : IdentityUser
     {
         public string Id { get; set; }
 
@@ -19,35 +26,44 @@ namespace Backend.Models
         public string FirstName { get; set; }
 
         [Required]
-        [StringLength(30)]
-        public string LastName { get; set; }
-
-        [Required]
         [Range(18, int.MaxValue)]
         public int Age { get; set; }
 
-        public int Height { get; set; }
+        [Required]
+        public Orientation Orientation { get; set; }
 
         [Required]
         public Gender Gender { get; set; }
 
         [StringLength(500)]
         public string Bio { get; set; }
-
-        public Dictionary<Education, string> Education { get; set; } //ex.: Bachelor, University of Obuda
-
+        
         [Required]
-        public List<Picture> Pictures { get; set; }
+        public Picture ProfilePicture { get; set; }
+
+        [NotMapped]
+        public ICollection<Picture> Pictures { get; set; }
 
         public SiteUser()
         {
             Id = Guid.NewGuid().ToString();
+            this.Pictures = new List<Picture>();
         }
     }
     public class Picture
     {
-        public string PhotoContentType { get; set; }
+        [ForeignKey(nameof(User))]
+        public int UserId { get; set; }
+        [NotMapped]
+        public virtual SiteUser User { get; set; }
+        [Key]
+        public string PictureId { get; set; }
+        [Required]
+        public string PhotoUrl { get; set; }
 
-        public byte[] PhotoData { get; set; }
+        public Picture()
+        {
+            PictureId = Guid.NewGuid().ToString();
+        }
     }
 }

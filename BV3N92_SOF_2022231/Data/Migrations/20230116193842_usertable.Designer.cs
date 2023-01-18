@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230116193842_usertable")]
+    partial class usertable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -27,16 +29,22 @@ namespace Backend.Data.Migrations
                     b.Property<string>("PictureId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PhotoUrl")
+                    b.Property<string>("PhotoContentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<byte[]>("PhotoData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("SiteUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("PictureId");
 
-                    b.ToTable("Pictures");
+                    b.HasIndex("SiteUserId");
+
+                    b.ToTable("Picture");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -267,16 +275,22 @@ namespace Backend.Data.Migrations
                     b.Property<int>("Gender")
                         .HasColumnType("int");
 
-                    b.Property<int>("Orientation")
+                    b.Property<int>("Height")
                         .HasColumnType("int");
 
-                    b.Property<string>("ProfilePicturePictureId")
+                    b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("ProfilePicturePictureId");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasDiscriminator().HasValue("SiteUser");
+                });
+
+            modelBuilder.Entity("Backend.Models.Picture", b =>
+                {
+                    b.HasOne("Backend.Models.SiteUser", null)
+                        .WithMany("Pictures")
+                        .HasForeignKey("SiteUserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -332,13 +346,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Models.SiteUser", b =>
                 {
-                    b.HasOne("Backend.Models.Picture", "ProfilePicture")
-                        .WithMany()
-                        .HasForeignKey("ProfilePicturePictureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProfilePicture");
+                    b.Navigation("Pictures");
                 });
 #pragma warning restore 612, 618
         }
