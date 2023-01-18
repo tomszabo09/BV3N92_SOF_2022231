@@ -20,9 +20,6 @@ namespace Backend.Models
 
 	public class SiteUser : IdentityUser
 	{
-		[Key]
-		public string UId { get; set; }
-
 		[Required]
 		[StringLength(20)]
 		public string FirstName { get; set; }
@@ -48,7 +45,6 @@ namespace Backend.Models
 
 		public SiteUser()
 		{
-			UId = Guid.NewGuid().ToString();
 			this.Pictures = new List<Picture>();
 		}
 	}
