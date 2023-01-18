@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230118140631_user_profilepicture_fk_id")]
+    partial class user_profilepicture_fk_id
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,11 +35,9 @@ namespace Backend.Data.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PictureId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Pictures");
                 });
@@ -273,22 +273,11 @@ namespace Backend.Data.Migrations
                     b.Property<int>("Orientation")
                         .HasColumnType("int");
 
-                    b.Property<string>("ProfilePictureUrl")
+                    b.Property<string>("ProfilePictureId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("SiteUser");
-                });
-
-            modelBuilder.Entity("Backend.Models.Picture", b =>
-                {
-                    b.HasOne("Backend.Models.SiteUser", "User")
-                        .WithMany("Pictures")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -340,11 +329,6 @@ namespace Backend.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Backend.Models.SiteUser", b =>
-                {
-                    b.Navigation("Pictures");
                 });
 #pragma warning restore 612, 618
         }

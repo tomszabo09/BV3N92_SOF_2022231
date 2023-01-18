@@ -37,11 +37,10 @@ namespace Backend.Models
 		[StringLength(500)]
 		public string Bio { get; set; }
 
-		[Required]
-		public Picture ProfilePicture { get; set; }
+		public string ProfilePictureUrl { get; set; }
 
 		[NotMapped]
-		public ICollection<Picture> Pictures { get; set; }
+		public virtual ICollection<Picture> Pictures { get; set; }
 
 		public SiteUser()
 		{

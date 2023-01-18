@@ -21,12 +21,8 @@ builder.Services.AddDefaultIdentity<SiteUser>(options =>
     options.Password.RequiredLength = 0;
     options.Password.RequiredUniqueChars = 0;
 }).AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-    
+	.AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-
-
-
 
 
 var app = builder.Build();

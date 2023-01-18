@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230118143605_connections")]
+    partial class connections
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +28,9 @@ namespace Backend.Data.Migrations
                 {
                     b.Property<string>("PictureId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsProfilePicture")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PhotoUrl")
                         .IsRequired()
@@ -272,10 +277,6 @@ namespace Backend.Data.Migrations
 
                     b.Property<int>("Orientation")
                         .HasColumnType("int");
-
-                    b.Property<string>("ProfilePictureUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("SiteUser");
                 });
