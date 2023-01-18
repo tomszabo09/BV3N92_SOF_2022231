@@ -28,6 +28,7 @@
 					<br />
 					<br />
 					<a href="/Admin/DeleteUser?userId=@user.Id" class="btn btn-danger">Delete Profil</a>
+					@*@Html.ActionLink("Delete Profil", "DeleteUser?userId=@user.Id", "Admin", null, new { onclick="return confirm('Are you sure you want to click this link?')" })*@
 				</div>
 			</div>
 
