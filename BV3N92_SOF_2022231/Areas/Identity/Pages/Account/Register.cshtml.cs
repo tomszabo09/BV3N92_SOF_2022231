@@ -67,7 +67,7 @@ namespace Backend.Areas.Identity.Pages.Account
 
 			[Required]
 			[Display(Name = "Age")]
-			[Range(18, int.MaxValue)]
+			[Range(18, 100)]
 			public int Age { get; set; }
 
 			[Display(Name = "My Sexual Orientation is")]

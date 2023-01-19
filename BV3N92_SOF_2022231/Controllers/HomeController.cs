@@ -77,6 +77,23 @@ namespace Backend.Controllers
 		}
 
 		[Authorize]
+		public IActionResult EditProfile()
+		{
+			return View(_userManager.GetUserAsync(User).Result);
+		}
+
+		[Authorize]
+		[HttpPost]
+		public async Task<IActionResult> EditProfileAsync(SiteUser modifiedUser)
+		{
+			var user = _userManager.GetUserAsync(User).Result;		
+			user.Age = modifiedUser.Age;
+			await _userManager.UpdateAsync(user);
+
+			return RedirectToAction(nameof(Profile));
+		}
+
+		[Authorize]
 		public async Task<IActionResult> DeleteUser()
 		{
 			var user = await _userManager.GetUserAsync(User);
