@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,10 +23,11 @@ namespace Backend.Models
 	{
 		[Required]
 		[StringLength(20)]
+		[DisplayName("First name")]
 		public string FirstName { get; set; }
 
 		[Required]
-		[Range(18, int.MaxValue)]
+		[Range(18, 100)]
 		public int Age { get; set; }
 
 		[Required]
