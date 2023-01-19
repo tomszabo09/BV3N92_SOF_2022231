@@ -1,4 +1,5 @@
 ﻿using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -39,6 +40,7 @@ namespace Backend.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult Profile()
         {
             return View();
@@ -49,12 +51,14 @@ namespace Backend.Controllers
             return View();
         }
 
-        public IActionResult Manage()
+		[Authorize]
+		public IActionResult Manage()
         {
             return View();
         }
 
-        public IActionResult Chat()
+		[Authorize]
+		public IActionResult Chat()
         {
             return View();
         }
