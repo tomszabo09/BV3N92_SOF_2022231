@@ -26,8 +26,11 @@ namespace Backend.Controllers
 			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
 		}
-
-		public IActionResult Visitor()
+        public IActionResult Match()
+        {
+            return View();
+        }
+        public IActionResult Visitor()
 		{
 			return View();
 		}
