@@ -7,8 +7,8 @@
 <h1>Edit your profile</h1>
 
 <hr />
-<div class="row">
-	<div class="col-md-4">
+
+	<div class="col d-flex justify-content-center">
 		<form asp-action="EditProfile">
 			<div asp-validation-summary="ModelOnly" method="post" enctype="multipart/form-data" class="text-danger"></div>
 			<div class="form-group">
@@ -56,8 +56,10 @@
 			<div class="container">
 				<div class="picture-container">
 					<div class="picture">
-						<img src="@Model.ProfilePictureUrl" class="picture-src" id="wizardPicturePreview" title="">
-						<input type="file" id="wizard-picture" class="" accept=".jpg,.jpeg,.png">
+@*						<asp:FileUpload ID="fileUpload" runat="server" />
+						<asp:Image ID="imgPreview" runat="server" Visible="false" />*@
+						<img src="@Model.ProfilePictureUrl" class="picture-src" id="image-preview" title="">
+					<input type="file" id="image-input" class="" accept=".jpg,.jpeg,.png">
 					</div>
 					<h6 class="">Choose Picture</h6>
 				</div>
@@ -81,7 +83,7 @@
 			</div>
 		</form>
 	</div>
-</div>
+
 
 <div>
 	<a asp-action="Profile">Back to your profile</a>
@@ -90,5 +92,19 @@
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+
+
+		
 	}
+	<script>
+		document.getElementById("image-input").addEventListener("change", function () {
+			var file = this.files[0];
+			var reader = new FileReader();
+			reader.onloadend = function () {
+				document.getElementById("image-preview").src = reader.result;
+			}
+			reader.readAsDataURL(file);
+		});
+	</script>
 	}
