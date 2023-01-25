@@ -28,6 +28,16 @@
 					}
 					<br />
 					<br />
+					@if (await UserManager.IsInRoleAsync(user, "PremiumUser"))
+					{
+						<a href="/Admin/RemovePremiumRights?userId=@user.Id" class="btn btn-warning">Remove Premium Rights</a>
+					}
+					else
+					{
+						<a href="/Admin/GrantPremiumRights?userId=@user.Id" class="btn btn-success">Grant Premium Rights</a>
+					}
+					<br />
+					<br />
 					@Html.ActionLink("Delete Profil", "DeleteUser", "Admin", new { userId = user.Id },  new { @class="btn btn-danger", onclick="return confirm('Are you sure you want to delete this user?')" })
 				</div>
 			</div>

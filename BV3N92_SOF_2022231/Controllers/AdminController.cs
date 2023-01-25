@@ -65,8 +65,8 @@ namespace Backend.Controllers
 			await _userManager.RemoveFromRoleAsync(user, "Admin");
 			return RedirectToAction(nameof(ManageAll));
 		}
-
-		[Authorize(Roles = "Admin")]
+        
+        [Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GrantAdminRights(string userId)
 		{
 			var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
@@ -88,5 +88,22 @@ namespace Backend.Controllers
 			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(ManageAll));
 		}
-	}
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GrantPremiumRights(string userId)
+        {
+            var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
+            await _userManager.AddToRoleAsync(user, "PremiumUser");
+            return RedirectToAction(nameof(ManageAll));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemovePremiumRights(string userId)
+        {
+            var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
+            await _userManager.RemoveFromRoleAsync(user, "PremiumUser");
+            return RedirectToAction(nameof(ManageAll));
+        }
+
+    }
 }
