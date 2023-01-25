@@ -15,9 +15,6 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Profile">Profile</a>
                     </li>
                     <li class="nav-item">
@@ -34,6 +31,13 @@
                     {
                         <li class="nav-item">
                             <a class="nav-link text-danger" asp-area="" asp-controller="Admin" asp-action="ControlPanel">Admin Control Panel</a>
+                        </li>
+                    }
+
+                    @if (SignInManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "PremiumUser"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" asp-area="" asp-controller="PremiumUser" asp-action="PremiumLikes">Likes (Premium)</a>
                         </li>
                     }
                 </ul>
