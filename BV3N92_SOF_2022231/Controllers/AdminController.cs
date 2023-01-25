@@ -11,11 +11,16 @@ namespace Backend.Controllers
 	{
 		private readonly UserManager<SiteUser> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
 
-		public AdminController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager)
+		public AdminController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<SiteUser> signInManager)
 		{
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_signInManager = signInManager;
+
 			var builder = WebApplication.CreateBuilder();
 
 			_userManager = userManager;
@@ -79,6 +84,7 @@ namespace Backend.Controllers
 				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync();
 			}
 
+			await _signInManager.SignOutAsync();
 			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(ManageAll));
 		}
