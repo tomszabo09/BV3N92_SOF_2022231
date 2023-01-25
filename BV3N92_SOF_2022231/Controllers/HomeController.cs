@@ -77,15 +77,15 @@ namespace Backend.Controllers
 		[Authorize]
 		public async Task<IActionResult> DeleteUser()
 		{
-			var user = _userManager.GetUserAsync(User);
+			var user = await _userManager.GetUserAsync(User);
 
-			foreach (var blob in containerClient.GetBlobs().Where(x => x.Name.Contains(user.Result.Id)))
+			foreach (var blob in containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id)))
 			{
 				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync();
 			}
 
 			await _signInManager.SignOutAsync();
-			await _userManager.DeleteAsync(user.Result);
+			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(Visitor));
 		}
 

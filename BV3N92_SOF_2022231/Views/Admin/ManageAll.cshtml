@@ -4,12 +4,13 @@
 
 @{
 	ViewData["Title"] = "Manage Profiles";
+	var currentUser = await UserManager.GetUserAsync(User);
 }
 <h1>@ViewData["Title"]</h1>
 
 
 <ul>
-	@foreach (var user in Model.Users)
+	@foreach (var user in Model.Users.Where(x => currentUser.Id != x.Id))
 	{
 		<li style="float: left; list-style-type: none; margin:10px">
 			<div class="card" style="width: 18rem; background-color:black">
