@@ -72,17 +72,23 @@ namespace Backend.Controllers
 		}
 
 		[Authorize]
-		public IActionResult EditProfile()
+		public async Task<IActionResult> EditProfileAsync()
 		{
-			return View(_userManager.GetUserAsync(User).Result);
+			return View(await _userManager.GetUserAsync(User));
 		}
 
 		[Authorize]
 		[HttpPost]
 		public async Task<IActionResult> EditProfileAsync(SiteUser modifiedUser)
 		{
-			var user = _userManager.GetUserAsync(User).Result;		
+			var user = await _userManager.GetUserAsync(User);
+
+			user.FirstName = modifiedUser.FirstName;
 			user.Age = modifiedUser.Age;
+			user.Bio = modifiedUser.Bio;
+			user.Gender = modifiedUser.Gender;
+			user.Orientation = modifiedUser.Orientation;
+
 			await _userManager.UpdateAsync(user);
 
 			return RedirectToAction(nameof(Profile));
