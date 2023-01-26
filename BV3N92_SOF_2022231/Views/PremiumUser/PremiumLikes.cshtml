@@ -4,6 +4,11 @@
 
 @{
 	var currentUser = await UserManager.GetUserAsync(User);
+	var likedUsers = UserManager.Users
+		.AsEnumerable()
+        .Where(u => u.LikedUsers.Any(l => l.WhoLikedId == currentUser.Id))
+        .ToList();
+	
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -12,7 +17,7 @@
 
 
 <ul>
-	@foreach (var user in Model.Users.Where(x => currentUser.Id != x.Id))
+	@foreach (var user in likedUsers)
 	{
 		<li style="float: left; list-style-type: none; margin:10px">
 			<div class="card" style="width: 18rem; background-color:darkgoldenrod">
