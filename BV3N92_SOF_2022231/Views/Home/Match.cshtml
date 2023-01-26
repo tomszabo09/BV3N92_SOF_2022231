@@ -1,15 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<SiteUser> SignInManager
 @inject UserManager<SiteUser> UserManager
+@model UserManager<SiteUser> 
 
 @{
     var currentUser = await UserManager.GetUserAsync(User);
-
-
-    var match = UserManager.Users.Where(u => u.Id != currentUser.Id).ToList();
-    var myStack = new Stack<SiteUser>(match);
-    var randomMatch = myStack.FirstOrDefault();
-
+    var possibleMatches = UserManager.Users.Where(u => u.Id != currentUser.Id)
+                                 .Where(u => !currentUser.LikedUsers.Contains(u.Id) && !currentUser.DislikedUsers.Contains(u.Id))
+                                 .ToList();
+    ;
+    var randomMatch = possibleMatches.FirstOrDefault();
 }
 <body>
     <header>
@@ -63,8 +63,8 @@
                 <h5 class="card-title">@randomMatch.Gender</h5>
                 <h6 class="card-subtitle mb-2 text-muted">@randomMatch.Age</h6>
                 <p class="card-text">@randomMatch.Bio</p>
-                <button type="button" class="btn btn-success">Like</button>
-                <button type="button" class="btn btn-danger">Dislike</button>
+                <a href="/Home/DislikeUser?userId=@randomMatch.Id" class="btn btn-danger">Dislike</a>
+                <a href="/Home/LikeUser?userId=@randomMatch.Id" class="btn btn-success">Like</a>
             </div>
         </div>
     </div>
