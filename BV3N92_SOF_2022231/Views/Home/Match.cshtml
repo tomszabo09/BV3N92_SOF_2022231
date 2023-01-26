@@ -16,7 +16,6 @@
 
 
 	var randomMatch = possibleMatches.FirstOrDefault();
-	;
 }
 <body>
 	<header>
@@ -40,39 +39,51 @@
 			</div>
 		</nav>
 	</header>
-	<div class="col d-flex justify-content-center">
-		<h1 style="color:white">@randomMatch.FirstName Profil</h1>
-	</div>
-	<br />
-	<br />
-	<div class="col d-flex justify-content-center">
-		@foreach (var picture in randomMatch.Pictures)
-		{
+	@if (possibleMatches.Count > 0)
+	{
+		<div class="col d-flex justify-content-center">
+			<h1 style="color:white">@randomMatch.FirstName Profil</h1>
+		</div>
+		<br />
+		<br />
+		<div class="col d-flex justify-content-center">
+			@foreach (var picture in randomMatch.Pictures)
+			{
+				<div class="hoverprofil">
+					<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+						<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+					</div>
+				</div>
+			}
+
 			<div class="hoverprofil">
 				<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-					<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+					<img class="card-img-top" src="@randomMatch.ProfilePictureUrl" alt="Card image cap">
 				</div>
 			</div>
-		}
+		</div>
 
-		<div class="hoverprofil">
-			<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-				<img class="card-img-top" src="@randomMatch.ProfilePictureUrl" alt="Card image cap">
+		<br />
+		<br />
+		<div class="col d-flex justify-content-center">
+			<div class="card" style="width: 18rem;">
+				<div class="card-body">
+					<h5 class="card-title">@randomMatch.Gender</h5>
+					<h6 class="card-subtitle mb-2 text-muted">@randomMatch.Age</h6>
+					<p class="card-text">@randomMatch.Bio</p>
+					<a href="/Home/DislikeUser?userId=@randomMatch.Id" class="btn btn-danger">Dislike</a>
+					<a href="/Home/LikeUser?userId=@randomMatch.Id" class="btn btn-success">Like</a>
+				</div>
 			</div>
 		</div>
-	</div>
-
-	<br />
-	<br />
+	}
+	else{
 	<div class="col d-flex justify-content-center">
 		<div class="card" style="width: 18rem;">
 			<div class="card-body">
-				<h5 class="card-title">@randomMatch.Gender</h5>
-				<h6 class="card-subtitle mb-2 text-muted">@randomMatch.Age</h6>
-				<p class="card-text">@randomMatch.Bio</p>
-				<a href="/Home/DislikeUser?userId=@randomMatch.Id" class="btn btn-danger">Dislike</a>
-				<a href="/Home/LikeUser?userId=@randomMatch.Id" class="btn btn-success">Like</a>
+				<h5 class="card-title">Currently there are no available cards...</h5>
 			</div>
 		</div>
 	</div>
+	}
 </body>
