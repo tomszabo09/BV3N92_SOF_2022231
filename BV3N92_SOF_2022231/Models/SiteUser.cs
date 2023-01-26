@@ -25,7 +25,7 @@ namespace Backend.Models
 		public string FirstName { get; set; }
 
 		[Required]
-		[Range(18, int.MaxValue)]
+		[Range(18, 100)]
 		public int Age { get; set; }
 
 		[Required]
@@ -42,9 +42,17 @@ namespace Backend.Models
 		[NotMapped]
 		public virtual ICollection<Picture> Pictures { get; set; }
 
-		public SiteUser()
+        [NotMapped]
+        public virtual ICollection<LikedUser> LikedUsers { get; set; }
+
+        [NotMapped]
+        public virtual ICollection<DislikedUser> DislikedUsers { get; set; }
+
+        public SiteUser()
 		{
 			this.Pictures = new List<Picture>();
-		}
+			this.LikedUsers = new List<LikedUser>();
+            this.DislikedUsers = new List<DislikedUser>();
+        }
 	}
 }

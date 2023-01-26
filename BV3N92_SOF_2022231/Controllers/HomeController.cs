@@ -3,6 +3,7 @@ using Azure.Storage.Blobs.Specialized;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -12,6 +13,7 @@ namespace Backend.Controllers
 	{
 		private readonly ILogger<HomeController> _logger;
 		private readonly UserManager<SiteUser> _userManager;
+		private readonly UserStore<SiteUser> _userStore;
 		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
@@ -26,11 +28,11 @@ namespace Backend.Controllers
 			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
 		}
-        public IActionResult Match()
-        {
-            return View();
-        }
-        public IActionResult Visitor()
+		public IActionResult Match()
+		{
+			return View(_userManager);
+		}
+		public IActionResult Visitor()
 		{
 			return View();
 		}
@@ -103,6 +105,28 @@ namespace Backend.Controllers
 		public IActionResult GetImage(string userid)
 		{
 			return new FileContentResult(new byte[10], "image/jpeg");
+		}
+
+		public async Task<IActionResult> LikeUser(string userId)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			var likedUser = await _userManager.FindByIdAsync(userId);
+
+			user.LikedUsers.Add(new LikedUser { LikedBy = user, LikedById = user.Id, WhoLiked = likedUser, WhoLikedId = likedUser.Id });
+
+			await _userManager.UpdateAsync(user);
+			return RedirectToAction(nameof(Match));
+		}
+
+		public async Task<IActionResult> DislikeUser(string userId)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			var likedUser = await _userManager.FindByIdAsync(userId);
+
+			user.DislikedUsers.Add(new DislikedUser { DislikedBy = user, DislikedById = user.Id, WhoDisliked = likedUser, WhoDislikedId = likedUser.Id });
+
+			await _userManager.UpdateAsync(user);
+			return RedirectToAction(nameof(Match));
 		}
 	}
 }
