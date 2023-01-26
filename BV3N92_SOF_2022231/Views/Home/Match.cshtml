@@ -1,71 +1,78 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<SiteUser> SignInManager
 @inject UserManager<SiteUser> UserManager
-@model UserManager<SiteUser> 
+@model UserManager<SiteUser>
 
 @{
-    var currentUser = await UserManager.GetUserAsync(User);
-    var possibleMatches = UserManager.Users.Where(u => u.Id != currentUser.Id)
-                                 .Where(u => !currentUser.LikedUsers.Contains(u.Id) && !currentUser.DislikedUsers.Contains(u.Id))
-                                 .ToList();
-    ;
-    var randomMatch = possibleMatches.FirstOrDefault();
+	var currentUser = await UserManager.GetUserAsync(User);
+	//var possibleMatches = UserManager.Users.Where(u => u.Id != currentUser.Id)
+	//								.Where(u => !currentUser.LikedUsers.Any(x => x.WhoLikedId != u.Id)).Where(u => !currentUser.DislikedUsers.Any(x => x.WhoDislikedId != u.Id)).ToList();
+	//var possibleMatches = UserManager.Users.Where(u => u.Id != currentUser.Id).Where(u => currentUser.LikedUsers.Any(l => l.WhoLikedId != u.Id)).ToList();
+	var possibleMatches = UserManager.Users
+		.Where(u => u.Id != currentUser.Id)
+		.AsEnumerable()
+		.Where(u => currentUser.LikedUsers.All(l => l.WhoLikedId != u.Id) && currentUser.DislikedUsers.All(d => d.WhoDislikedId != u.Id))
+		.ToList();
+
+
+	var randomMatch = possibleMatches.FirstOrDefault();
+	;
 }
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light">
-            <div class="container-fluid">
-                <h1>
-                    <a class="btn-link text-white" asp-area="" asp-controller="Home" asp-action="Index">UniSex</a>
-                </h1>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
+	<header>
+		<nav class="navbar navbar-expand-lg navbar-light">
+			<div class="container-fluid">
+				<h1>
+					<a class="btn-link text-white" asp-area="" asp-controller="Home" asp-action="Index">UniSex</a>
+				</h1>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+					<ul class="navbar-nav flex-grow-1">
+						<li class="nav-item">
 
-                        </li>
-                    </ul>
-                    <partial name="_LoginPartial" />
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="col d-flex justify-content-center">
-        <h1 style="color:white">@randomMatch.FirstName Profil</h1>
-    </div>
-    <br />
-    <br />
-    <div class="col d-flex justify-content-center">
-        @foreach (var picture in randomMatch.Pictures)
-        {
-            <div class="hoverprofil">
-                <div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-                    <img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
-                </div>
-            </div>
-        }
+						</li>
+					</ul>
+					<partial name="_LoginPartial" />
+				</div>
+			</div>
+		</nav>
+	</header>
+	<div class="col d-flex justify-content-center">
+		<h1 style="color:white">@randomMatch.FirstName Profil</h1>
+	</div>
+	<br />
+	<br />
+	<div class="col d-flex justify-content-center">
+		@foreach (var picture in randomMatch.Pictures)
+		{
+			<div class="hoverprofil">
+				<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+					<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+				</div>
+			</div>
+		}
 
-        <div class="hoverprofil">
-            <div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-                <img class="card-img-top" src="@randomMatch.ProfilePictureUrl" alt="Card image cap">
-            </div>
-        </div>
-    </div>
+		<div class="hoverprofil">
+			<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+				<img class="card-img-top" src="@randomMatch.ProfilePictureUrl" alt="Card image cap">
+			</div>
+		</div>
+	</div>
 
-    <br />
-    <br />
-    <div class="col d-flex justify-content-center">
-        <div class="card" style="width: 18rem;">
-            <div class="card-body">
-                <h5 class="card-title">@randomMatch.Gender</h5>
-                <h6 class="card-subtitle mb-2 text-muted">@randomMatch.Age</h6>
-                <p class="card-text">@randomMatch.Bio</p>
-                <a href="/Home/DislikeUser?userId=@randomMatch.Id" class="btn btn-danger">Dislike</a>
-                <a href="/Home/LikeUser?userId=@randomMatch.Id" class="btn btn-success">Like</a>
-            </div>
-        </div>
-    </div>
+	<br />
+	<br />
+	<div class="col d-flex justify-content-center">
+		<div class="card" style="width: 18rem;">
+			<div class="card-body">
+				<h5 class="card-title">@randomMatch.Gender</h5>
+				<h6 class="card-subtitle mb-2 text-muted">@randomMatch.Age</h6>
+				<p class="card-text">@randomMatch.Bio</p>
+				<a href="/Home/DislikeUser?userId=@randomMatch.Id" class="btn btn-danger">Dislike</a>
+				<a href="/Home/LikeUser?userId=@randomMatch.Id" class="btn btn-success">Like</a>
+			</div>
+		</div>
+	</div>
 </body>

@@ -8,6 +8,8 @@ namespace Backend.Data
 	{
 		public DbSet<Picture> Pictures { get; set; }
 		public DbSet<SiteUser> Users { get; set; }
+		public DbSet<LikedUser> LikedUsers { get; set; }
+		public DbSet<DislikedUser> DislikedUsers { get; set; }
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
 		{
@@ -25,6 +27,30 @@ namespace Backend.Data
 			u.HasMany(p => p.Pictures)
 			.WithOne(u => u.User)
 			.HasForeignKey(p => p.UserId)
+			.OnDelete(DeleteBehavior.Cascade));
+
+			builder.Entity<SiteUser>(u =>
+			u.HasMany(l => l.LikedUsers)
+			.WithOne(u => u.LikedBy)
+			.HasForeignKey(l => l.LikedById)
+			.OnDelete(DeleteBehavior.Cascade));
+
+			builder.Entity<LikedUser>(l =>
+			l.HasOne(u => u.LikedBy)
+			.WithMany(l => l.LikedUsers)
+			.HasForeignKey(u => u.LikedById)
+			.OnDelete(DeleteBehavior.Cascade));
+
+			builder.Entity<SiteUser>(u =>
+			u.HasMany(l => l.DislikedUsers)
+			.WithOne(u => u.DislikedBy)
+			.HasForeignKey(l => l.DislikedById)
+			.OnDelete(DeleteBehavior.Cascade));
+
+			builder.Entity<DislikedUser>(l =>
+			l.HasOne(u => u.DislikedBy)
+			.WithMany(l => l.DislikedUsers)
+			.HasForeignKey(u => u.DislikedById)
 			.OnDelete(DeleteBehavior.Cascade));
 
 			base.OnModelCreating(builder);
