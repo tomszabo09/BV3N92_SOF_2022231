@@ -7,103 +7,103 @@
 <h1>@ViewData["Title"]</h1>
 
 <div class="d-flex justify-content-center">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-            <h2 class="text-white">Create a new account.</h2>
-            <hr />
+	<div class="col-md-4">
+		<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+			<h2 class="text-white">Create a new account.</h2>
+			<hr />
 
+			<div class="form-floating">
+				<input asp-for="Input.FirstName" class="form-control" autocomplete="firstname" aria-required="true" />
+				<label asp-for="Input.FirstName"></label>
+				<span asp-validation-for="Input.FirstName" class="text-danger"></span>
+			</div>
+			<br />
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-floating">
+				<input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+				<label asp-for="Input.Email"></label>
+				<span asp-validation-for="Input.Email" class="text-danger"></span>
+			</div>
 
-            <div class="form-floating">
-                <input asp-for="Input.FirstName" class="form-control" autocomplete="firstname" aria-required="true" />
-                <label asp-for="Input.FirstName"></label>
-                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-            </div>
-            <br />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-floating">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
-                <label asp-for="Input.Email"></label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
+			<br />
+			<div class="form-floating">
+				<input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+				<label asp-for="Input.Password"></label>
+				<span asp-validation-for="Input.Password" class="text-danger"></span>
+			</div>
+			<br />
+			<div class="form-floating">
+				<input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+				<label asp-for="Input.ConfirmPassword"></label>
+				<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<span asp-validation-for="Input.Bio" class="text-danger"></span>
+				<label asp-for="Input.Bio" class="text-info"></label>
+				<textarea asp-for="Input.Bio" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+			</div>
+			<br />
+			<div class="form-floating">
+				<input asp-for="Input.Age" class="form-control" autocomplete="age" aria-required="true" />
+				<label asp-for="Input.Age"></label>
+				<span asp-validation-for="Input.Age" class="text-danger"></span>
+			</div>
+			<br />
+			<div class="p-3 mb-2 bg-info text-white">I Am a </div>
+			<br />
+			@foreach (var value in Enum.GetValues(typeof(Gender)))
+			{
+				<div class="form-check">
 
+					<input class="form-check-input" type="radio" asp-for="Input.Gender" value="@((int)value)" />
+					<label class="text-white" asp-for="Input.Gender">@value</label>
+				</div>
+			}
+			<span asp-validation-for="Input.Gender" class="text-danger"></span>
+			<br />
+			<div class="p-3 mb-2 bg-info text-white">My Sexual Orientation is</div>
 
-            <br />
-            <div class="form-floating">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
-                <label asp-for="Input.Password"></label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <br />
-            <div class="form-floating">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
-                <label asp-for="Input.ConfirmPassword"></label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <span asp-validation-for="Input.Bio" class="text-danger"></span>
-                <label asp-for="Input.Bio" class="text-info"></label>
-                <textarea asp-for="Input.Bio" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-            </div>
-            <br />
-            <div class="form-floating">
-                <input asp-for="Input.Age" class="form-control" autocomplete="age" aria-required="true" />
-                <label asp-for="Input.Age"></label>
-                <span asp-validation-for="Input.Age" class="text-danger"></span>
-            </div>
-            <br />
-            <div class="p-3 mb-2 bg-info text-white">I Am a </div>
-            <br />
-            @foreach (var value in Enum.GetValues(typeof(Gender)))
-            {
-                <div class="form-check">
+			@foreach (var value in Enum.GetValues(typeof(Orientation)))
+			{
+				<div class="form-check">
+					<input class="form-check-input" type="radio" asp-for="Input.Orientation" value="@((int)value)" />
+					<label class="text-white" asp-for="Input.Orientation">@value</label>
+				</div>
+			}
+			<span asp-validation-for="Input.Orientation" class="text-danger"></span>
+			<br />
 
-                    <input class="form-check-input" type="radio" asp-for="Input.Gender" value="@((int)value)" />
-                    <label class="text-white" asp-for="Input.Gender">@value</label>
-                </div>
-            }
-            <br />
-            <div class="p-3 mb-2 bg-info text-white">My Sexual Orientation is</div>
+			<div class="p-3 mb-2 bg-info text-white">My Best Pic (Profil Picture)</div>
+			<br />
+			<br />
+			<div class="container">
+				<div class="picture-container">
+					<div class="picture">
+						<img id="image-preview" src="https://lh3.googleusercontent.com/LfmMVU71g-HKXTCP_QWlDOemmWg4Dn1rJjxeEsZKMNaQprgunDTtEuzmcwUBgupKQVTuP0vczT9bH32ywaF7h68mF-osUSBAeM6MxyhvJhG6HKZMTYjgEv3WkWCfLB7czfODidNQPdja99HMb4qhCY1uFS8X0OQOVGeuhdHy8ln7eyr-6MnkCcy64wl6S_S6ep9j7aJIIopZ9wxk7Iqm-gFjmBtg6KJVkBD0IA6BnS-XlIVpbqL5LYi62elCrbDgiaD6Oe8uluucbYeL1i9kgr4c1b_NBSNe6zFwj7vrju4Zdbax-GPHmiuirf2h86eKdRl7A5h8PXGrCDNIYMID-J7_KuHKqaM-I7W5yI00QDpG9x5q5xOQMgCy1bbu3St1paqt9KHrvNS_SCx-QJgBTOIWW6T0DHVlvV_9YF5UZpN7aV5a79xvN1Gdrc7spvSs82v6gta8AJHCgzNSWQw5QUR8EN_-cTPF6S-vifLa2KtRdRAV7q-CQvhMrbBCaEYY73bQcPZFd9XE7HIbHXwXYA=s200-no" class="picture-src" title="">
+						<input type="file" id="image-input" class="" asp-for="Input.ProfilePicture" accept=".jpg,.jpeg,.png">
+					</div>
+					<h6 class="">Choose Picture</h6>
+					<span asp-validation-for="Input.ProfilePicture" class="text-danger"></span>
 
-            @foreach (var value in Enum.GetValues(typeof(Orientation)))
-            {
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" asp-for="Input.Orientation" value="@((int)value)" />
-                    <label class="text-white" asp-for="Input.Orientation">@value</label>
-                </div>
-            }
-
-            <br />
-
-            <div class="p-3 mb-2 bg-info text-white">My Best Pic (Profil Picture)</div>
-            <br />
-            <br />
-            <div class="container">
-                <div class="picture-container">
-                    <div class="picture">
-                        <img id="image-preview" src="https://lh3.googleusercontent.com/LfmMVU71g-HKXTCP_QWlDOemmWg4Dn1rJjxeEsZKMNaQprgunDTtEuzmcwUBgupKQVTuP0vczT9bH32ywaF7h68mF-osUSBAeM6MxyhvJhG6HKZMTYjgEv3WkWCfLB7czfODidNQPdja99HMb4qhCY1uFS8X0OQOVGeuhdHy8ln7eyr-6MnkCcy64wl6S_S6ep9j7aJIIopZ9wxk7Iqm-gFjmBtg6KJVkBD0IA6BnS-XlIVpbqL5LYi62elCrbDgiaD6Oe8uluucbYeL1i9kgr4c1b_NBSNe6zFwj7vrju4Zdbax-GPHmiuirf2h86eKdRl7A5h8PXGrCDNIYMID-J7_KuHKqaM-I7W5yI00QDpG9x5q5xOQMgCy1bbu3St1paqt9KHrvNS_SCx-QJgBTOIWW6T0DHVlvV_9YF5UZpN7aV5a79xvN1Gdrc7spvSs82v6gta8AJHCgzNSWQw5QUR8EN_-cTPF6S-vifLa2KtRdRAV7q-CQvhMrbBCaEYY73bQcPZFd9XE7HIbHXwXYA=s200-no" class="picture-src" title="">
-                        <input type="file" id="image-input" class="" asp-for="Input.ProfilePicture" accept=".jpg,.jpeg,.png">
-                    </div>
-                    <h6 class="">Choose Picture</h6>
-
-                </div>
-            </div>
-            <br />
-            <br />
-            <div class="mb-3">
-                <div class="p-3 mb-2 bg-info text-white">My Photos</div>
-                <br />
-                <input class="form-file" type="file" id="formFileMultiple" asp-for="Input.UserPictures" multiple accept=".jpg,.jpeg,.png">
-            </div>
-            <br />
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Continue</button>
-        </form>
-    </div>
+				</div>
+			</div>
+			<br />
+			<br />
+			<div class="mb-3">
+				<div class="p-3 mb-2 bg-info text-white">My Photos</div>
+				<br />
+				<input class="form-file" type="file" id="formFileMultiple" asp-for="Input.UserPictures" multiple accept=".jpg,.jpeg,.png">
+			</div>
+			<br />
+			<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Continue</button>
+		</form>
+	</div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<partial name="_ValidationScriptsPartial" />
 
-    <script>
+	<script>
 		document.getElementById("image-input").addEventListener("change", function () {
 			var file = this.files[0];
 			var reader = new FileReader();

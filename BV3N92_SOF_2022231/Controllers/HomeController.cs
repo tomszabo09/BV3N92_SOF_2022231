@@ -1,9 +1,10 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Backend.Helpers;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,7 +14,6 @@ namespace Backend.Controllers
 	{
 		private readonly ILogger<HomeController> _logger;
 		private readonly UserManager<SiteUser> _userManager;
-		private readonly UserStore<SiteUser> _userStore;
 		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
@@ -79,20 +79,50 @@ namespace Backend.Controllers
 		[Authorize]
 		public async Task<IActionResult> EditProfileAsync()
 		{
-			return View(await _userManager.GetUserAsync(User));
+			var user = await _userManager.GetUserAsync(User);
+			var editUser = new EditSiteUser();
+			editUser.FirstName = user.FirstName;
+			editUser.Age = user.Age;
+			editUser.Orientation = user.Orientation;
+			editUser.Gender = user.Gender;
+			editUser.Bio = user.Bio;
+			editUser.ProfilePictureUrl = user.ProfilePictureUrl;
+
+			return View(editUser);
 		}
 
 		[Authorize]
 		[HttpPost]
-		public async Task<IActionResult> EditProfileAsync(SiteUser modifiedUser)
+		public async Task<IActionResult> EditProfileAsync(EditSiteUser editUser)
 		{
 			var user = await _userManager.GetUserAsync(User);
 
-			user.FirstName = modifiedUser.FirstName;
-			user.Age = modifiedUser.Age;
-			user.Bio = modifiedUser.Bio;
-			user.Gender = modifiedUser.Gender;
-			user.Orientation = modifiedUser.Orientation;
+			user.FirstName = editUser.FirstName;
+			user.Age = editUser.Age;
+			user.Bio = editUser.Bio;
+			user.Gender = editUser.Gender;
+			user.Orientation = editUser.Orientation;
+
+			if (editUser.ProfilePicture != null)
+			{
+				var profPic = containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id + "_profilepicture")).FirstOrDefault();
+				var num = profPic.Name.Last() - '0';
+
+				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + num);
+				await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
+
+				if (num == 9)
+					num = -1;
+
+				blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + ++num);
+				using (var uploadFileStream = editUser.ProfilePicture.OpenReadStream())
+				{
+					await blobClient.UploadAsync(uploadFileStream, true);
+				}
+				blobClient.SetAccessTier(AccessTier.Cool);
+
+				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
+			}
 
 			await _userManager.UpdateAsync(user);
 
@@ -106,7 +136,7 @@ namespace Backend.Controllers
 
 			foreach (var blob in containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id)))
 			{
-				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync();
+				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
 			}
 
 			await _signInManager.SignOutAsync();
