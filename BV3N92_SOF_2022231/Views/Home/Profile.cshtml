@@ -52,9 +52,12 @@
 	<div class="col d-flex justify-content-center">
 		@foreach (var picture in currentUser.Pictures)
 		{
+		<div class="hoverprofil">
 			<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
 				<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
 			</div>
+		</div>
+
 		}
 	</div>
 </body>

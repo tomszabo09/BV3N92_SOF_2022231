@@ -1,5 +1,7 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Backend.Helpers;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +28,10 @@ namespace Backend.Controllers
 			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
 		}
-
+		public IActionResult Match()
+		{
+			return View(_userManager);
+		}
 		public IActionResult Visitor()
 		{
 			return View();
@@ -74,20 +79,50 @@ namespace Backend.Controllers
 		[Authorize]
 		public async Task<IActionResult> EditProfileAsync()
 		{
-			return View(await _userManager.GetUserAsync(User));
+			var user = await _userManager.GetUserAsync(User);
+			var editUser = new EditSiteUser();
+			editUser.FirstName = user.FirstName;
+			editUser.Age = user.Age;
+			editUser.Orientation = user.Orientation;
+			editUser.Gender = user.Gender;
+			editUser.Bio = user.Bio;
+			editUser.ProfilePictureUrl = user.ProfilePictureUrl;
+
+			return View(editUser);
 		}
 
 		[Authorize]
 		[HttpPost]
-		public async Task<IActionResult> EditProfileAsync(SiteUser modifiedUser)
+		public async Task<IActionResult> EditProfileAsync(EditSiteUser editUser)
 		{
 			var user = await _userManager.GetUserAsync(User);
 
-			user.FirstName = modifiedUser.FirstName;
-			user.Age = modifiedUser.Age;
-			user.Bio = modifiedUser.Bio;
-			user.Gender = modifiedUser.Gender;
-			user.Orientation = modifiedUser.Orientation;
+			user.FirstName = editUser.FirstName;
+			user.Age = editUser.Age;
+			user.Bio = editUser.Bio;
+			user.Gender = editUser.Gender;
+			user.Orientation = editUser.Orientation;
+
+			if (editUser.ProfilePicture != null)
+			{
+				var profPic = containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id + "_profilepicture")).FirstOrDefault();
+				var num = profPic.Name.Last() - '0';
+
+				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + num);
+				await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
+
+				if (num == 9)
+					num = -1;
+
+				blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + ++num);
+				using (var uploadFileStream = editUser.ProfilePicture.OpenReadStream())
+				{
+					await blobClient.UploadAsync(uploadFileStream, true);
+				}
+				blobClient.SetAccessTier(AccessTier.Cool);
+
+				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
+			}
 
 			await _userManager.UpdateAsync(user);
 
@@ -97,15 +132,15 @@ namespace Backend.Controllers
 		[Authorize]
 		public async Task<IActionResult> DeleteUser()
 		{
-			var user = _userManager.GetUserAsync(User);
+			var user = await _userManager.GetUserAsync(User);
 
-			foreach (var blob in containerClient.GetBlobs().Where(x => x.Name.Contains(user.Result.Id)))
+			foreach (var blob in containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id)))
 			{
-				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync();
+				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
 			}
 
 			await _signInManager.SignOutAsync();
-			await _userManager.DeleteAsync(user.Result);
+			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(Visitor));
 		}
 
@@ -123,6 +158,28 @@ namespace Backend.Controllers
 		public IActionResult GetImage(string userid)
 		{
 			return new FileContentResult(new byte[10], "image/jpeg");
+		}
+
+		public async Task<IActionResult> LikeUser(string userId)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			var likedUser = await _userManager.FindByIdAsync(userId);
+
+			user.LikedUsers.Add(new LikedUser { LikedBy = user, LikedById = user.Id, WhoLiked = likedUser, WhoLikedId = likedUser.Id });
+
+			await _userManager.UpdateAsync(user);
+			return RedirectToAction(nameof(Match));
+		}
+
+		public async Task<IActionResult> DislikeUser(string userId)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			var likedUser = await _userManager.FindByIdAsync(userId);
+
+			user.DislikedUsers.Add(new DislikedUser { DislikedBy = user, DislikedById = user.Id, WhoDisliked = likedUser, WhoDislikedId = likedUser.Id });
+
+			await _userManager.UpdateAsync(user);
+			return RedirectToAction(nameof(Match));
 		}
 	}
 }

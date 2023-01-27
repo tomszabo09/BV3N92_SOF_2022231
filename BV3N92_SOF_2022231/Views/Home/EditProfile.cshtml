@@ -1,89 +1,90 @@
-﻿@model Backend.Models.SiteUser
+﻿@using Backend.Helpers
+@using Microsoft.AspNetCore.Identity
+@model EditSiteUser
+@inject UserManager<SiteUser> _usermanager
 
 @{
-	ViewData["Title"] = "Edit profile";
+	ViewData["Title"] = "Edit Profile";
+	var currentuser = await _usermanager.GetUserAsync(User);
 }
 
 <h1>Edit your profile</h1>
 
 <hr />
 
-	<div class="col d-flex justify-content-center">
-		<form asp-action="EditProfile">
-			<div asp-validation-summary="ModelOnly" method="post" enctype="multipart/form-data" class="text-danger"></div>
-			<div class="form-group">
-				<label asp-for="FirstName" class="control-label"></label>
-				<input asp-for="FirstName" class="form-control" />
-				<span asp-validation-for="FirstName" class="text-danger"></span>
-			</div>
-			<div class="form-group">
-				<label asp-for="Age" class="control-label"></label>
-				<input asp-for="Age" class="form-control"></input>
-				<span asp-validation-for="Age" class="text-danger"></span>
-			</div>
+<div class="col d-flex justify-content-center">
+	<form asp-controller="Home" asp-action="EditProfile" method="post" enctype="multipart/form-data">
+		<div asp-validation-summary="All" class="text-danger"></div>
+		<div class="form-group">
+			<label asp-for="FirstName" class="control-label"></label>
+			<input asp-for="FirstName" class="form-control" />
+			<span asp-validation-for="FirstName" class="text-danger"></span>
+		</div>
+		<div class="form-group">
+			<label asp-for="Age" class="control-label"></label>
+			<input asp-for="Age" class="form-control" />
+			<span asp-validation-for="Age" class="text-danger"></span>
+		</div>
 
-			<div class="form-group">
-				<label asp-for="Bio" class="control-label"></label>
-				<textarea asp-for="Bio" class="form-control"></textarea>
-				<span asp-validation-for="Bio" class="text-danger"></span>
+		<div class="form-group">
+			<label asp-for="Bio" class="control-label"></label>
+			<textarea asp-for="Bio" class="form-control"></textarea>
+			<span asp-validation-for="Bio" class="text-danger"></span>
+		</div>
+		<br />
+		<div class="p-3 mb-2 bg-info text-white">I Am a </div>
+		<br />
+		@foreach (var value in Enum.GetValues(typeof(Gender)))
+		{
+			<div class="form-check">
+
+				<input class="form-check-input" type="radio" asp-for="Gender" value="@((int)value)" checked="@((int)value == (int)Model.Gender )" />
+				<label class="text-white" asp-for="Gender">@value</label>
 			</div>
-			<br />
-			<div class="p-3 mb-2 bg-info text-white">I Am a </div>
-			<br />
-			@foreach (var value in Enum.GetValues(typeof(Gender)))
+		}
+		<br />
+		<div class="p-3 mb-2 bg-info text-white">My Sexual Orientation is</div>
+
+		@foreach (var value in Enum.GetValues(typeof(Orientation)))
+		{
+			<div class="form-check">
+				<input class="form-check-input" type="radio" asp-for="Orientation" value="@((int)value)" checked="@((int)value == (int)Model.Orientation)" />
+				<label class="text-white" asp-for="Orientation">@value</label>
+			</div>
+		}
+
+		<br />
+		<div class="p-3 mb-2 bg-info text-white">My Best Pic (Profil Picture)</div>
+		<br />
+		<br />
+		<div class="container">
+			<div class="picture-container">
+				<div class="picture">
+					<img src="@Model.ProfilePictureUrl" class="picture-src" id="image-preview" title="">
+					<input type="file" id="image-input" class="" name="profilePicture" asp-for="ProfilePicture" accept=".jpg,.jpeg,.png">
+				</div>
+				<h6 class="">Choose Picture</h6>
+			</div>
+		</div>
+		<br />
+		<div class="col d-flex justify-content-center">
+			<h1 style="color:white">My Pictures</h1>
+		</div>
+		<br />
+		<div class="col d-flex justify-content-center">
+			@foreach (var picture in currentuser.Pictures)
 			{
-				<div class="form-check">
-
-					<input class="form-check-input" type="radio" asp-for="Gender" value="@((int)value)" checked="@((int)value == (int)Model.Gender )" />
-					<label class="text-white" asp-for="Gender">@value</label>
+				<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+					<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
 				</div>
 			}
-			<br />
-			<div class="p-3 mb-2 bg-info text-white">My Sexual Orientation is</div>
-
-			@foreach (var value in Enum.GetValues(typeof(Orientation)))
-			{
-				<div class="form-check">
-					<input class="form-check-input" type="radio" asp-for="Orientation" value="@((int)value)" checked="@((int)value == (int)Model.Orientation)" />
-					<label class="text-white" asp-for="Orientation">@value</label>
-				</div>
-			}
-
-			<br />
-			<div class="p-3 mb-2 bg-info text-white">My Best Pic (Profil Picture)</div>
-			<br />
-			<br />
-			<div class="container">
-				<div class="picture-container">
-					<div class="picture">
-@*						<asp:FileUpload ID="fileUpload" runat="server" />
-						<asp:Image ID="imgPreview" runat="server" Visible="false" />*@
-						<img src="@Model.ProfilePictureUrl" class="picture-src" id="image-preview" title="">
-					<input type="file" id="image-input" class="" accept=".jpg,.jpeg,.png">
-					</div>
-					<h6 class="">Choose Picture</h6>
-				</div>
-			</div>
-			<br />
-			<div class="col d-flex justify-content-center">
-				<h1 style="color:white">My Pictures</h1>
-			</div>
-			<br />
-			<div class="col d-flex justify-content-center">
-				@foreach (var picture in Model.Pictures)
-				{
-					<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-						<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
-					</div>
-				}
-			</div>
-			<br />
-			<div class="form-group">
-				<button id="editSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-			</div>
-		</form>
-	</div>
-
+		</div>
+		<br />
+		<div class="form-group">
+			<button id="editSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+		</div>
+	</form>
+</div>
 
 <div>
 	<a class="text-white" asp-action="Profile">Back to your profile</a>
@@ -92,10 +93,6 @@
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-
-
-
-		
 	}
 	<script>
 		document.getElementById("image-input").addEventListener("change", function () {
@@ -107,4 +104,4 @@
 			reader.readAsDataURL(file);
 		});
 	</script>
-	}
+}

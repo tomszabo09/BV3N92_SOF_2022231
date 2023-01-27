@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Backend.Helpers;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -44,9 +46,17 @@ namespace Backend.Models
 		[NotMapped]
 		public virtual ICollection<Picture> Pictures { get; set; }
 
-		public SiteUser()
+        [NotMapped]
+        public virtual ICollection<LikedUser> LikedUsers { get; set; }
+
+        [NotMapped]
+        public virtual ICollection<DislikedUser> DislikedUsers { get; set; }
+
+        public SiteUser()
 		{
 			this.Pictures = new List<Picture>();
-		}
+			this.LikedUsers = new List<LikedUser>();
+            this.DislikedUsers = new List<DislikedUser>();
+        }
 	}
 }

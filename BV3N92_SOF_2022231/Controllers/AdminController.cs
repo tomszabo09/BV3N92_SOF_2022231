@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,16 @@ namespace Backend.Controllers
 	{
 		private readonly UserManager<SiteUser> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
 
-		public AdminController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager)
+		public AdminController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<SiteUser> signInManager)
 		{
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_signInManager = signInManager;
+
 			var builder = WebApplication.CreateBuilder();
 
 			_userManager = userManager;
@@ -76,11 +82,28 @@ namespace Backend.Controllers
 
 			foreach (var blob in containerClient.GetBlobs().Where(x => x.Name.Contains(userId)))
 			{
-				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync();
+				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
 			}
 
 			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(ManageAll));
 		}
+
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> GrantPremiumRights(string userId)
+		{
+			var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
+			await _userManager.AddToRoleAsync(user, "PremiumUser");
+			return RedirectToAction(nameof(ManageAll));
+		}
+
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> RemovePremiumRights(string userId)
+		{
+			var user = _userManager.Users.FirstOrDefault(t => t.Id == userId);
+			await _userManager.RemoveFromRoleAsync(user, "PremiumUser");
+			return RedirectToAction(nameof(ManageAll));
+		}
+
 	}
 }

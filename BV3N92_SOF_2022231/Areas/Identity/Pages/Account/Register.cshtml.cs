@@ -70,7 +70,7 @@ namespace Backend.Areas.Identity.Pages.Account
 			[Range(18, 100)]
 			public int Age { get; set; }
 
-			[Display(Name = "My Sexual Orientation is")]
+			[Display(Name = "Orientation")]
 			[Required]
 			public Orientation Orientation { get; set; }
 
@@ -123,7 +123,7 @@ namespace Backend.Areas.Identity.Pages.Account
 				user.Orientation = Input.Orientation;
 				user.Gender = Input.Gender;
 
-				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture");
+				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_0");
 				using (var uploadFileStream = Input.ProfilePicture.OpenReadStream())
 				{
 					await blobClient.UploadAsync(uploadFileStream, true);
@@ -132,17 +132,20 @@ namespace Backend.Areas.Identity.Pages.Account
 
 				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
 
-				int photoCount = user.Pictures.Count;
 
-				foreach (var photo in Input.UserPictures)
+				if (Input.UserPictures != null)
 				{
-					blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + photoCount++);
-					using (var uploadFileStream = photo.OpenReadStream())
+					int photoCount = user.Pictures.Count;
+					foreach (var photo in Input.UserPictures)
 					{
-						await blobClient.UploadAsync(uploadFileStream, true);
+						blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + photoCount++);
+						using (var uploadFileStream = photo.OpenReadStream())
+						{
+							await blobClient.UploadAsync(uploadFileStream, true);
+						}
+						blobClient.SetAccessTier(AccessTier.Cool);
+						user.Pictures.Add(new Picture() { PhotoUrl = blobClient.Uri.AbsoluteUri, User = user, UserId = user.Id });
 					}
-					blobClient.SetAccessTier(AccessTier.Cool);
-					user.Pictures.Add(new Picture() { PhotoUrl = blobClient.Uri.AbsoluteUri, User = user, UserId = user.Id });
 				}
 
 				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

@@ -4,12 +4,13 @@
 
 @{
 	ViewData["Title"] = "Manage Profiles";
+	var currentUser = await UserManager.GetUserAsync(User);
 }
 <h1>@ViewData["Title"]</h1>
 
 
 <ul>
-	@foreach (var user in Model.Users)
+	@foreach (var user in Model.Users.Where(x => currentUser.Id != x.Id))
 	{
 		<li style="float: left; list-style-type: none; margin:10px">
 			<div class="card" style="width: 18rem; background-color:black">
@@ -24,6 +25,16 @@
 					else
 					{
 						<a href="/Admin/GrantAdminRights?userId=@user.Id" class="btn btn-success">Grant Admin Rights</a>
+					}
+					<br />
+					<br />
+					@if (await UserManager.IsInRoleAsync(user, "PremiumUser"))
+					{
+						<a href="/Admin/RemovePremiumRights?userId=@user.Id" class="btn btn-warning">Remove Premium Rights</a>
+					}
+					else
+					{
+						<a href="/Admin/GrantPremiumRights?userId=@user.Id" class="btn btn-success">Grant Premium Rights</a>
 					}
 					<br />
 					<br />

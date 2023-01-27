@@ -109,3 +109,12 @@ body {
 h6 {
     color:white
 }
+
+.hoverprofil:hover {
+    transform: scale(1.5);
+    width: 125px;
+    box-shadow: 1px rgba(0, 0, 0, 0.5);
+    height: 125px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
