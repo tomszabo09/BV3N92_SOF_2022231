@@ -85,7 +85,6 @@ namespace Backend.Controllers
 				await containerClient.GetBlockBlobClient(blob.Name).DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
 			}
 
-			await _signInManager.SignOutAsync();
 			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(ManageAll));
 		}
