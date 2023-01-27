@@ -5,16 +5,12 @@
 
 @{
 	var currentUser = await UserManager.GetUserAsync(User);
-	//var possibleMatches = UserManager.Users.Where(u => u.Id != currentUser.Id)
-	//								.Where(u => !currentUser.LikedUsers.Any(x => x.WhoLikedId != u.Id)).Where(u => !currentUser.DislikedUsers.Any(x => x.WhoDislikedId != u.Id)).ToList();
-	//var possibleMatches = UserManager.Users.Where(u => u.Id != currentUser.Id).Where(u => currentUser.LikedUsers.Any(l => l.WhoLikedId != u.Id)).ToList();
 	var possibleMatches = UserManager.Users
 		.Where(u => u.Id != currentUser.Id)
 		.AsEnumerable()
 		.Where(u => currentUser.LikedUsers.All(l => l.WhoLikedId != u.Id) && currentUser.DislikedUsers.All(d => d.WhoDislikedId != u.Id))
 		.ToList();
-
-
+        
 	var randomMatch = possibleMatches.FirstOrDefault();
 }
 <body>
