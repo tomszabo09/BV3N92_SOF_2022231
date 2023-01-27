@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Backend.Helpers;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,6 +25,7 @@ namespace Backend.Models
 	{
 		[Required]
 		[StringLength(20)]
+		[DisplayName("First name")]
 		public string FirstName { get; set; }
 
 		[Required]
