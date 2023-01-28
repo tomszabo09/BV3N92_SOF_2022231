@@ -132,19 +132,21 @@ namespace Backend.Areas.Identity.Pages.Account
 
 				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
 
-
 				if (Input.UserPictures != null)
 				{
-					int photoCount = user.Pictures.Count;
 					foreach (var photo in Input.UserPictures)
 					{
-						blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + photoCount++);
+						var pic = new Picture();
+						blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + pic.PictureId);
 						using (var uploadFileStream = photo.OpenReadStream())
 						{
 							await blobClient.UploadAsync(uploadFileStream, true);
 						}
 						blobClient.SetAccessTier(AccessTier.Cool);
-						user.Pictures.Add(new Picture() { PhotoUrl = blobClient.Uri.AbsoluteUri, User = user, UserId = user.Id });
+						pic.PhotoUrl = blobClient.Uri.AbsoluteUri;
+						pic.User = user;
+						pic.UserId = user.Id;
+						user.Pictures.Add(pic);
 					}
 				}
 
