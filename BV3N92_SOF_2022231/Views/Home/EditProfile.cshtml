@@ -6,6 +6,8 @@
 @{
 	ViewData["Title"] = "Edit Profile";
 	var currentuser = await _usermanager.GetUserAsync(User);
+	var picCount = currentuser.Pictures.Count;
+	var picsAllowed = 9 - picCount;
 }
 
 <h1>Edit your profile</h1>
@@ -75,10 +77,16 @@
 			@foreach (var picture in currentuser.Pictures)
 			{
 				<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-					<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+					<img id="customImage-preview" class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+					@Html.ActionLink("Delete Picture", "DeletePicture", "Home", new { id = picture.PictureId },  new { @class="btn btn-warning", onclick="return confirm('Are you sure you want to delete this picture')" })
 				</div>
 			}
 		</div>
+		@if (picsAllowed > 0)
+		{
+			<label class="text-white">Upload pictures (Max @picsAllowed)</label>
+			<input class="text-white" type="file" onchange="checkFilesCount(this)" id="formFileMultiple" asp-for="UserPictures" multiple accept=".jpg,.jpeg,.png">
+		}
 		<br />
 		<div class="form-group">
 			<button id="editSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
@@ -95,6 +103,21 @@
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
 	<script>
+		function checkFilesCount(id) {
+			if (id.files.length > @picsAllowed) {
+				alert('@picsAllowed pictures allowed maximum');
+				document.getElementById("formFileMultiple").value = "";
+			}
+		}
+
+		document.getElementById("customImage-input").addEventListener("change", function () {
+			var file = this.files[0];
+			var reader = new FileReader();
+			reader.onloadend = function () {
+				document.getElementById("customImage-preview").src = reader.result;
+			}
+			reader.readAsDataURL(file);
+		});
 		document.getElementById("image-input").addEventListener("change", function () {
 			var file = this.files[0];
 			var reader = new FileReader();
@@ -103,5 +126,6 @@
 			}
 			reader.readAsDataURL(file);
 		});
+
 	</script>
 }

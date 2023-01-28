@@ -103,12 +103,14 @@ namespace Backend.Controllers
 			user.Gender = editUser.Gender;
 			user.Orientation = editUser.Orientation;
 
+			BlobClient blobClient;
+
 			if (editUser.ProfilePicture != null)
 			{
 				var profPic = containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id + "_profilepicture")).FirstOrDefault();
 				var num = profPic.Name.Last() - '0';
 
-				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + num);
+				blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + num);
 				await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
 
 				if (num == 9)
@@ -122,6 +124,24 @@ namespace Backend.Controllers
 				blobClient.SetAccessTier(AccessTier.Cool);
 
 				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
+			}
+
+			if (editUser.UserPictures.Count > 0)
+			{
+				foreach (var picture in editUser.UserPictures)
+				{
+					var pic = new Picture();
+					blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + pic.PictureId);
+					using (var uploadFileStream = picture.OpenReadStream())
+					{
+						await blobClient.UploadAsync(uploadFileStream, true);
+					}
+					blobClient.SetAccessTier(AccessTier.Cool);
+					pic.PhotoUrl = blobClient.Uri.AbsoluteUri;
+					pic.User = user;
+					pic.UserId = user.Id;
+					user.Pictures.Add(pic);
+				}
 			}
 
 			await _userManager.UpdateAsync(user);
@@ -142,6 +162,27 @@ namespace Backend.Controllers
 			await _signInManager.SignOutAsync();
 			await _userManager.DeleteAsync(user);
 			return RedirectToAction(nameof(Visitor));
+		}
+
+		[Authorize]
+		public async Task<IActionResult> DeletePicture(string id)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			user.Pictures.Remove(user.Pictures.First(p => p.PictureId == id));
+			await _userManager.UpdateAsync(user);
+
+			var blob = containerClient.GetBlobs().FirstOrDefault(b => b.Name == user.Id + "_custompic_" + id);
+			await containerClient.GetBlobClient(blob.Name).DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
+
+			var editUser = new EditSiteUser();
+			editUser.FirstName = user.FirstName;
+			editUser.Age = user.Age;
+			editUser.Orientation = user.Orientation;
+			editUser.Gender = user.Gender;
+			editUser.Bio = user.Bio;
+			editUser.ProfilePictureUrl = user.ProfilePictureUrl;
+
+			return View("EditProfile", editUser);
 		}
 
 		public IActionResult Bonus()

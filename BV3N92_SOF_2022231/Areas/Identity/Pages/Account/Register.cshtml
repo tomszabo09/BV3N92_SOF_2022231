@@ -90,9 +90,9 @@
 			<br />
 			<br />
 			<div class="mb-3">
-				<div class="p-3 mb-2 bg-info text-white">My Photos</div>
+				<div class="p-3 mb-2 bg-info text-white">My Photos (Max 9)</div>
 				<br />
-				<input class="form-file" type="file" id="formFileMultiple" asp-for="Input.UserPictures" multiple accept=".jpg,.jpeg,.png">
+				<input class="form-file" type="file" onchange="checkFilesCount(this)" id="formFileMultiple" asp-for="Input.UserPictures" multiple accept=".jpg,.jpeg,.png">
 			</div>
 			<br />
 			<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Continue</button>
@@ -104,6 +104,13 @@
 	<partial name="_ValidationScriptsPartial" />
 
 	<script>
+
+		function checkFilesCount(id) {
+			if (id.files.length > 9) {
+				alert('9 pictures allowed maximum');
+				document.getElementById("formFileMultiple").value = "";
+			}
+		}
 
 		document.getElementById("image-input").addEventListener("change", function () {
 			var file = this.files[0];

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Helpers
 {
-	[ModelBinder(BinderType = typeof(EditSiteUserModelBinder))]
+	//[ModelBinder(BinderType = typeof(EditSiteUserModelBinder))]
 	public class EditSiteUser
 	{
 		[Required]
@@ -30,11 +30,11 @@ namespace Backend.Helpers
 
 		public IFormFile? ProfilePicture { get; set; }
 
-		public ICollection<IFormFile> UserPictures { get; set; }
+		public ICollection<IFormFile?>? UserPictures { get; set; }
 
 		public EditSiteUser()
 		{
-			UserPictures = new List<IFormFile>();
+			UserPictures = new List<IFormFile?>();
 		}
 	}
 }
