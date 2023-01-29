@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Backend.Helpers;
 
 namespace Backend.Areas.Identity.Pages.Account
 {
@@ -74,6 +75,10 @@ namespace Backend.Areas.Identity.Pages.Account
 			[Required]
 			public Orientation Orientation { get; set; }
 
+			[Display(Name = "Hobbies")]
+			[Required]
+			public List<string> Hobbies { get; set; }
+
 			[Required]
 			[Display(Name = "Gender")]
 			public Gender Gender { get; set; }
@@ -122,6 +127,18 @@ namespace Backend.Areas.Identity.Pages.Account
 				user.Bio = Input.Bio;
 				user.Orientation = Input.Orientation;
 				user.Gender = Input.Gender;
+
+				for (int i = 0; i < Input.Hobbies.Count; i++)
+				{
+					if (Input.Hobbies[i] == "false")
+					{
+						user.Hobbies.Add(new Hobby() { Name = Constants.Hobbies[i].Name, User = user, UserId = user.Id, IsChecked = false });
+					}
+					else
+					{
+						user.Hobbies.Add(new Hobby() { Name = Input.Hobbies[i], User = user, UserId = user.Id, IsChecked = true });
+					}
+				}
 
 				BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_0");
 				using (var uploadFileStream = Input.ProfilePicture.OpenReadStream())

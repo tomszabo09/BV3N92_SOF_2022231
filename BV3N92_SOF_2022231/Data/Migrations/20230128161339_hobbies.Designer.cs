@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230128161339_hobbies")]
+    partial class hobbies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,29 +42,6 @@ namespace Backend.Data.Migrations
                     b.HasIndex("DislikedById");
 
                     b.ToTable("DislikedUsers");
-                });
-
-            modelBuilder.Entity("Backend.Models.Hobby", b =>
-                {
-                    b.Property<string>("HobbyId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsChecked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("HobbyId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Hobby");
                 });
 
             modelBuilder.Entity("Backend.Models.LikedUser", b =>
@@ -354,17 +333,6 @@ namespace Backend.Data.Migrations
                     b.Navigation("DislikedBy");
                 });
 
-            modelBuilder.Entity("Backend.Models.Hobby", b =>
-                {
-                    b.HasOne("Backend.Models.SiteUser", "User")
-                        .WithMany("Hobbies")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Backend.Models.LikedUser", b =>
                 {
                     b.HasOne("Backend.Models.SiteUser", "LikedBy")
@@ -441,8 +409,6 @@ namespace Backend.Data.Migrations
             modelBuilder.Entity("Backend.Models.SiteUser", b =>
                 {
                     b.Navigation("DislikedUsers");
-
-                    b.Navigation("Hobbies");
 
                     b.Navigation("LikedUsers");
 
