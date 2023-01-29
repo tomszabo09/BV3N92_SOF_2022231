@@ -50,7 +50,10 @@ namespace Backend.Models
         [NotMapped]
         public virtual ICollection<LikedUser> LikedUsers { get; set; }
 
-        [NotMapped]
+		[NotMapped]
+		public virtual ICollection<MatchedUser> MatchedUsers { get; set; }
+
+		[NotMapped]
         public virtual ICollection<DislikedUser> DislikedUsers { get; set; }
 
         public SiteUser()
