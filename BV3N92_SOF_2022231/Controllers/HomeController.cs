@@ -2,10 +2,12 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Backend.Helpers;
+using Backend.Hubs;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 
 namespace Backend.Controllers
@@ -17,8 +19,9 @@ namespace Backend.Controllers
 		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
+		IHubContext<UserEventsHub> _hub;
 
-		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager)
+		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager, IHubContext<UserEventsHub> hub)
 		{
 			var builder = WebApplication.CreateBuilder();
 
@@ -27,6 +30,7 @@ namespace Backend.Controllers
 			_signInManager = signInManager;
 			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
+			_hub = hub;
 		}
 		public IActionResult Match()
 		{
@@ -114,19 +118,22 @@ namespace Backend.Controllers
 		{
 			var user = await _userManager.GetUserAsync(User);
 
+			bool notSameImportantDetails = false;
+			if (user.FirstName != editUser.FirstName || user.ProfilePictureUrl != editUser.ProfilePictureUrl || user.Age != editUser.Age || user.Bio != editUser.Bio || user.Gender != editUser.Gender)
+				notSameImportantDetails = true;
+
 			user.FirstName = editUser.FirstName;
 			user.Age = editUser.Age;
 			user.Bio = editUser.Bio;
 			user.Gender = editUser.Gender;
 			user.Orientation = editUser.Orientation;
 
-			for (int i = 0; i < user.Hobbies.Count; ++i)
+			foreach (Hobby current in user.Hobbies)
 			{
-				Hobby current = user.Hobbies[i];
-				if (editUser.HobbyNames.FirstOrDefault(t => t == current.Name) != null && !current.IsChecked)
-				{
-					user.Hobbies[i].IsChecked = true;
-				}
+				if (editUser.HobbyNames.SingleOrDefault(h => h == current.Name) == null && current.IsChecked)
+					current.IsChecked = false;
+				else if (editUser.HobbyNames.SingleOrDefault(h => h == current.Name) != null && !current.IsChecked)
+					current.IsChecked = true;
 			}
 
 			BlobClient blobClient;
@@ -172,6 +179,9 @@ namespace Backend.Controllers
 
 			await _userManager.UpdateAsync(user);
 
+			if (notSameImportantDetails)
+				await _hub.Clients.All.SendAsync("userModified");
+
 			return RedirectToAction(nameof(Profile));
 		}
 
@@ -187,6 +197,9 @@ namespace Backend.Controllers
 
 			await _signInManager.SignOutAsync();
 			await _userManager.DeleteAsync(user);
+			
+			await _hub.Clients.All.SendAsync("userDeleted");
+
 			return RedirectToAction(nameof(Visitor));
 		}
 

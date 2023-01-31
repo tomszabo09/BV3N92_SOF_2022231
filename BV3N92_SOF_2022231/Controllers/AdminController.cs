@@ -1,10 +1,12 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Backend.Hubs;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Backend.Controllers
 {
@@ -15,8 +17,9 @@ namespace Backend.Controllers
 		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
+		IHubContext<UserEventsHub> _hub;
 
-		public AdminController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<SiteUser> signInManager)
+		public AdminController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<SiteUser> signInManager, IHubContext<UserEventsHub> hub)
 		{
 			_userManager = userManager;
 			_roleManager = roleManager;
@@ -28,6 +31,7 @@ namespace Backend.Controllers
 			_roleManager = roleManager;
 			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
+			_hub = hub;
 		}
 
 		public async Task<IActionResult> DelegateAdmin()
@@ -86,6 +90,9 @@ namespace Backend.Controllers
 			}
 
 			await _userManager.DeleteAsync(user);
+
+			await _hub.Clients.All.SendAsync("userDeleted");
+
 			return RedirectToAction(nameof(ManageAll));
 		}
 
