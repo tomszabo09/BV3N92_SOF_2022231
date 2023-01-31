@@ -59,7 +59,6 @@
 		<div class="p-3 mb-2 bg-info text-white">My hobbies are</div>
 		@for (int i = 0; i < Model.Hobbies.Count; ++i)
 		{
-			var xd = Model.Hobbies;
 			<div class="form-check">
 				<input class="form-check-input" type="checkbox" asp-for="HobbyNames[i]" value="@Model.Hobbies[i].Name" checked="@Model.Hobbies[i].IsChecked" />
 				<label class="text-white" asp-for="HobbyNames[i]">@Model.Hobbies[i].Name</label>

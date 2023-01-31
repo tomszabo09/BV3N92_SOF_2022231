@@ -120,13 +120,12 @@ namespace Backend.Controllers
 			user.Gender = editUser.Gender;
 			user.Orientation = editUser.Orientation;
 
-			for (int i = 0; i < user.Hobbies.Count; ++i)
+			foreach (Hobby current in user.Hobbies)
 			{
-				Hobby current = user.Hobbies[i];
-				if (editUser.HobbyNames.FirstOrDefault(t => t == current.Name) != null && !current.IsChecked)
-				{
-					user.Hobbies[i].IsChecked = true;
-				}
+				if (editUser.HobbyNames.SingleOrDefault(h => h == current.Name) == null && current.IsChecked)
+					current.IsChecked = false;
+				else if (editUser.HobbyNames.SingleOrDefault(h => h == current.Name) != null && !current.IsChecked)
+					current.IsChecked = true;
 			}
 
 			BlobClient blobClient;
