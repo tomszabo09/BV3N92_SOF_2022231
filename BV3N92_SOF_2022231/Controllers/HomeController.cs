@@ -197,6 +197,9 @@ namespace Backend.Controllers
 
 			await _signInManager.SignOutAsync();
 			await _userManager.DeleteAsync(user);
+			
+			await _hub.Clients.All.SendAsync("userDeleted");
+
 			return RedirectToAction(nameof(Visitor));
 		}
 

@@ -59,6 +59,10 @@
 				location.reload();
 			});
 
+			connection.on("userDeleted", function () {
+				location.reload();
+			});
+
 			connection.start().catch(function (err) {
 				return console.error(err.toString());
 			});
