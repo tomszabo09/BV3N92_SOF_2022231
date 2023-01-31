@@ -31,6 +31,7 @@ namespace Backend.Controllers
 			{
 				Name = "PremiumUser"
 			};
+
 			if (!await _roleManager.RoleExistsAsync("PremiumUser"))
 			{
 				await _roleManager.CreateAsync(role);
