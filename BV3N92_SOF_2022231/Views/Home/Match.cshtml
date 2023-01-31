@@ -1,0 +1,185 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<SiteUser> SignInManager
+@inject UserManager<SiteUser> UserManager
+@model UserManager<SiteUser>
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var availableUsers = UserManager.Users
+        .Where(u => u.Id != currentUser.Id)
+        .AsEnumerable()
+        .Where(u => currentUser.LikedUsers.All(l => l.WhoLikedId != u.Id) && currentUser.DislikedUsers.All(d => d.WhoDislikedId != u.Id))
+        .ToList();
+
+
+    List<string> userHobbies = new List<string>();
+    foreach (var hobby in currentUser.Hobbies)
+    {
+        if (hobby.IsChecked)
+        {
+            userHobbies.Add(hobby.Name);
+        }
+    }
+
+    int ageDiff;
+    double score;
+    List<Tuple<double, SiteUser>> judgedUsers = new List<Tuple<double, SiteUser>>();
+    foreach (var user in availableUsers)
+    {
+        if (IsPotentialUser(user))
+        {
+            score = 0;
+            foreach (var hobby in user.Hobbies)
+            {
+                if (hobby.IsChecked && userHobbies.FirstOrDefault(t => t == hobby.Name) != null)
+                {
+                    ++score;
+                }
+            }
+            ageDiff = Math.Abs(currentUser.Age - user.Age);
+            score -= ageDiff * 0.25;
+            judgedUsers.Add(new Tuple<double, SiteUser>(score, user));
+        }
+    }
+    judgedUsers = judgedUsers.OrderBy(t => t.Item1).Reverse().ToList();
+
+    bool IsPotentialUser(SiteUser user)
+    {
+        return IsStraight(user) || IsGay(user) || IsBisexual(user);
+    }
+
+    bool IsStraight(SiteUser user)
+    {
+        return user.Orientation == Orientation.Straight && currentUser.Orientation == Orientation.Straight && user.Gender != currentUser.Gender;
+    }
+
+    bool IsGay(SiteUser user)
+    {
+        return currentUser.Orientation == Orientation.Gay && user.Orientation == Orientation.Gay && user.Gender == currentUser.Gender;
+    }
+
+    bool IsBisexual(SiteUser user)
+    {
+        return currentUser.Orientation == Orientation.Bisexual && ((user.Orientation == Orientation.Gay && user.Gender == currentUser.Gender) || (user.Orientation == Orientation.Straight && user.Gender != currentUser.Gender) || user.Orientation == Orientation.Bisexual);
+    }
+
+    List<SiteUser> orderedUsers = new List<SiteUser>();
+    for (int i = 0; i < judgedUsers.Count; i++)
+    {
+        orderedUsers.Add(judgedUsers[i].Item2);
+    }
+
+    var match = orderedUsers.FirstOrDefault();
+    
+}
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <h1>
+                    <a class="btn-link text-white" asp-area="" asp-controller="Home" asp-action="Index">UniSex</a>
+                </h1>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Profile">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Chat">Chat</a>
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-danger" asp-area="" asp-controller="Admin" asp-action="ManageAll">Admin Control Panel</a>
+                            </li>
+                        }
+
+                        @if (SignInManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "PremiumUser"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" asp-area="" asp-controller="PremiumUser" asp-action="PremiumLikes">Likes (Premium)</a>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    @if (orderedUsers.Count > 0)
+    {
+        <div class="col d-flex justify-content-center">
+            <h1 style="color:white">@match.FirstName Profil</h1>
+        </div>
+        <br />
+        <br />
+        <div class="col d-flex justify-content-center">
+            @foreach (var picture in match.Pictures)
+            {
+                <div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+                    <img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+                </div>
+            }
+
+
+            <div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+                <img class="card-img-top" src="@match.ProfilePictureUrl" alt="Card image cap">
+            </div>
+        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <div class="col d-flex justify-content-center">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">@match.Gender  @match.Age</h5>
+                    <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Bio</h5>
+                            <p class="card-text">@match.Bio</p>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-start">
+                        @foreach (var hobby in match.Hobbies.Where(o => o.IsChecked == true))
+                        {
+                            <div class="row">
+                                <div class="text-center">
+                                    <br />
+                                    <button class="btn btn-dark">@hobby.Name</button>
+                                    <br />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <br />
+                    <br />
+                    <div class="col d-flex justify-content-center">
+                        <a href="/Home/DislikeUser?userId=@match.Id" class="btn btn-danger  btn-lg" style="margin:21px">Dislike</a>
+                        <a href="/Home/LikeUser?userId=@match.Id" class="btn btn-success  btn-lg" style="margin:21px">Like</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="col d-flex justify-content-center">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Currently there are no available cards...</h5>
+                </div>
+            </div>
+        </div>
+    }
+</body>
+
+@section Scripts{
+
+}

@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<SiteUser> SignInManager
+@inject UserManager<SiteUser> UserManager
+
+@{
+	var currentUser = await UserManager.GetUserAsync(User);
+
+	var match = UserManager.Users.Where(u => u.MatchedUsers.FirstOrDefault(t => t.WhoLikedId == currentUser.Id && !t.Notified) != null).FirstOrDefault();
+
+	if (match != null)
+	{
+		UserManager.Users.Where(u => u.MatchedUsers.FirstOrDefault(t => t.WhoLikedId == currentUser.Id && !t.Notified) != null).FirstOrDefault().MatchedUsers.First(t => t.WhoLikedId == currentUser.Id && !t.Notified).Notified = true;
+	}
+}
+
+<body>
+	<header>
+		<nav class="navbar navbar-expand-lg navbar-light">
+			<div class="container-fluid">
+				<h1>
+					<a class="btn-link text-white" asp-area="" asp-controller="Home" asp-action="Index">UniSex</a>
+				</h1>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+					<ul class="navbar-nav flex-grow-1">
+						<li class="nav-item">
+
+						</li>
+					</ul>
+					<partial name="_LoginPartial" />
+				</div>
+			</div>
+		</nav>
+	</header>
+<div class="col d-flex justify-content-center">
+			<h1 style="color:white">Matched with @match.FirstName!</h1>
+		</div>
+		<br />
+		<br />
+		<div class="col d-flex justify-content-center">
+			@foreach (var picture in match.Pictures)
+			{
+				<div class="hoverprofil">
+					<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+						<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+					</div>
+				</div>
+			}
+
+			<div class="hoverprofil">
+				<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+					<img class="card-img-top" src="@match.ProfilePictureUrl" alt="Card image cap">
+				</div>
+			</div>
+		</div>
+
+		<br />
+		<br />
+		<div class="col d-flex justify-content-center">
+			<div class="card" style="width: 18rem;">
+				<div class="card-body">
+					<h5 class="card-title">@match.Gender</h5>
+					<h6 class="card-subtitle mb-2 text-muted">@match.Age</h6>
+					<p class="card-text">@match.Bio</p>
+				<a href="/Home/Match" class="btn btn-success">OK</a>
+				</div>
+			</div>
+		</div>
+</body>

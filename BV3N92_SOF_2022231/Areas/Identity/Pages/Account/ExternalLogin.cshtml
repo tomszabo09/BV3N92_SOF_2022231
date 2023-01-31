@@ -1,0 +1,140 @@
+﻿@page
+@using Backend.Helpers
+@using Backend.Models
+@model ExternalLoginModel
+@{
+	ViewData["Title"] = "Register";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h2 id="external-login-title">Associate your @Model.ProviderDisplayName account.</h2>
+<hr />
+
+<p id="external-login-description" class="text-info">
+	You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
+	Please enter an email address for this site below and click the Register button to finish
+	logging in.
+</p>
+
+<div class="d-flex justify-content-center">
+	<div class="col-md-4">
+		<form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+			<h2 class="text-white">Create a new account.</h2>
+			<hr />
+
+			<div class="form-floating">
+				<input asp-for="@Model.Input.FirstName" class="form-control" autocomplete="firstname" aria-required="true" disabled="disabled" />
+				<label asp-for="@Model.Input.FirstName"></label>
+				<span asp-validation-for="@Model.Input.FirstName" class="text-danger"></span>
+				<input asp-for="@Model.Input.FirstName" hidden="hidden" />
+			</div>
+			<br />
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-floating">
+				<input asp-for="@Model.Input.Email" class="form-control" autocomplete="username" aria-required="true" disabled="disabled" />
+				<label asp-for="@Model.Input.Email"></label>
+				<span asp-validation-for="@Model.Input.Email" class="text-danger"></span>
+				<input asp-for="@Model.Input.Email" hidden="hidden" />
+			</div>
+
+			<br />
+			<div class="form-group">
+				<span asp-validation-for="Input.Bio" class="text-danger"></span>
+				<label asp-for="Input.Bio" class="text-info"></label>
+				<textarea asp-for="Input.Bio" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+				<input asp-for="@Model.Input.Bio" hidden="hidden" />
+			</div>
+			<br />
+			<div class="form-floating">
+				<input asp-for="Input.Age" class="form-control" autocomplete="age" aria-required="true" />
+				<label asp-for="Input.Age"></label>
+				<span asp-validation-for="Input.Age" class="text-danger"></span>
+				<input asp-for="@Model.Input.Age" hidden="hidden" />
+			</div>
+			<br />
+			<div class="p-3 mb-2 bg-info text-white">I Am a </div>
+			<br />
+			@foreach (var value in Enum.GetValues(typeof(Gender)))
+			{
+				<div class="form-check">
+
+					<input class="form-check-input" type="radio" asp-for="Input.Gender" value="@((int)value)" />
+					<label class="text-white" asp-for="Input.Gender">@value</label>
+				</div>
+			}
+			<span asp-validation-for="Input.Gender" class="text-danger"></span>
+			<br />
+			<div class="p-3 mb-2 bg-info text-white">My Sexual Orientation is</div>
+
+			@foreach (var value in Enum.GetValues(typeof(Orientation)))
+			{
+				<div class="form-check">
+					<input class="form-check-input" type="radio" asp-for="Input.Orientation" value="@((int)value)" />
+					<label class="text-white" asp-for="Input.Orientation">@value</label>
+				</div>
+			}
+			<span asp-validation-for="Input.Orientation" class="text-danger"></span>
+			<br />
+
+			<br />
+			<div class="p-3 mb-2 bg-info text-white">My hobbies are</div>
+			@for (int i = 0; i < Constants.Hobbies.Count; ++i)
+			{
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" asp-for="Input.Hobbies[i]" value="@Constants.Hobbies[i].Name" />
+					<label class="text-white" asp-for="Input.Hobbies[i]">@Constants.Hobbies[i].Name</label>
+
+				</div>
+			}
+			<span asp-validation-for="Input.Hobbies" class="text-danger"></span>
+			<br />
+
+			<div class="p-3 mb-2 bg-info text-white">My Best Pic (Profil Picture)</div>
+			<br />
+			<br />
+			<div class="container">
+				<div class="picture-container">
+					<div class="picture">
+						<img id="image-preview" src="@Model.Input.ProfilePicture" class="picture-src" title="">
+						<input asp-for="@Model.Input.ProfilePicture" hidden="hidden" />
+						@*<input type="file" id="image-input" class="" asp-for="Input.ProfilePicture" accept=".jpg,.jpeg,.png">*@
+					</div>
+					<h6 class="">Choose Picture</h6>
+					@*<span asp-validation-for="Input.ProfilePicture" class="text-danger"></span>*@
+				</div>
+			</div>
+			<br />
+			<br />
+			<div class="mb-3">
+				<div class="p-3 mb-2 bg-info text-white">My Photos (Max 9)</div>
+				<br />
+				<input class="form-file" type="file" onchange="checkFilesCount(this)" id="formFileMultiple" asp-for="Input.UserPictures" multiple accept=".jpg,.jpeg,.png">
+			</div>
+			<br />
+			<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Continue</button>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+
+	<script>
+
+		function checkFilesCount(id) {
+			if (id.files.length > 9) {
+				alert('9 pictures allowed maximum');
+				document.getElementById("formFileMultiple").value = "";
+			}
+		}
+
+		document.getElementById("image-input").addEventListener("change", function () {
+			var file = this.files[0];
+			var reader = new FileReader();
+			reader.onloadend = function () {
+				document.getElementById("image-preview").src = reader.result;
+			}
+			reader.readAsDataURL(file);
+		});
+	</script>
+}
