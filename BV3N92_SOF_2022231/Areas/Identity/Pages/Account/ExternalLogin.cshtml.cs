@@ -18,6 +18,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using Newtonsoft.Json;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
 
 namespace Backend.Areas.Identity.Pages.Account
 {
@@ -30,6 +34,23 @@ namespace Backend.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<SiteUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        BlobServiceClient serviceClient;
+        BlobContainerClient containerClient;
+
+        public class TokenModel
+        {
+            public string access_token { get; set; }
+            public string token_type { get; set; }
+        }
+
+        public class MsMetaData
+        {
+            [JsonProperty("@odata.mediaContentType")]
+            public string odatamediaContentType { get; set; }
+            public string id { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+        }
 
         public ExternalLoginModel(
             SignInManager<SiteUser> signInManager,
@@ -38,12 +59,17 @@ namespace Backend.Areas.Identity.Pages.Account
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender)
         {
+            var builder = WebApplication.CreateBuilder();
+
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+
+            serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
+            containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
         }
 
         /// <summary>
@@ -78,15 +104,34 @@ namespace Backend.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
+            [Display(Name = "Write about yourself (Bio)")]
+            [StringLength(500)]
+            public string Bio { get; set; }
+
             [Required]
+            [Display(Name = "Age")]
+            [Range(18, 100)]
+            public int Age { get; set; }
+
+            [Display(Name = "Orientation")]
+            [Required]
+            public Orientation Orientation { get; set; }
+
+            [Required]
+            [Display(Name = "Gender")]
+            public Gender Gender { get; set; }
+
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
             [EmailAddress]
+            [Display(Name = "Email")]
             public string Email { get; set; }
+
+            public string ProfilePicture { get; set; }
+            public ICollection<IFormFile> UserPictures { get; set; }
         }
-        
+
         public IActionResult OnGet() => RedirectToPage("./Login");
 
         public IActionResult OnPost(string provider, string returnUrl = null)
@@ -132,8 +177,16 @@ namespace Backend.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
                     };
+                    if (info.ProviderDisplayName == "Facebook")
+                    {
+                        var access_token_json = new WebClient().DownloadString("https://graph.facebook.com/oauth/access_token?client_id=2794042890728401&client_secret=2f287125c74430fd2dfc8cddbabae3f7&grant_type=client_credentials");
+                        var token = JsonConvert.DeserializeObject<TokenModel>(access_token_json);
+                        Input.ProfilePicture = $"https://graph.facebook.com/{info.Principal.FindFirstValue(ClaimTypes.NameIdentifier)}/picture?type=large&access_token={token.access_token}";
+
+                    }
                 }
                 return Page();
             }
@@ -153,6 +206,48 @@ namespace Backend.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+                user.FirstName = Input.FirstName;
+                user.Age = Input.Age;
+                user.Bio = Input.Bio;
+                user.Orientation = Input.Orientation;
+                user.Gender = Input.Gender;
+
+                var client = new HttpClient();
+                var response = await client.GetAsync(Input.ProfilePicture);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var stream = await response.Content.ReadAsStreamAsync();
+                    BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_0");
+                    using (var uploadFileStream = stream)
+                    {
+                        await blobClient.UploadAsync(uploadFileStream, true);
+                    }
+                    blobClient.SetAccessTier(AccessTier.Cool);
+
+                    user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
+                }
+
+                
+
+                if (Input.UserPictures != null)
+                {
+                    foreach (var photo in Input.UserPictures)
+                    {
+                        var pic = new Picture();
+                        BlobClient blobClient = containerClient.GetBlobClient(user.Id + "_custompic_" + pic.PictureId);
+                        using (var uploadFileStream = photo.OpenReadStream())
+                        {
+                            await blobClient.UploadAsync(uploadFileStream, true);
+                        }
+                        blobClient.SetAccessTier(AccessTier.Cool);
+                        pic.PhotoUrl = blobClient.Uri.AbsoluteUri;
+                        pic.User = user;
+                        pic.UserId = user.Id;
+                        user.Pictures.Add(pic);
+                    }
+                }
+
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
