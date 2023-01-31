@@ -10,6 +10,8 @@ namespace Backend.Models
 
         public string LikedById { get; set; }
 
+        public bool Notified { get; set; }
+
         [NotMapped]
         public virtual SiteUser LikedBy { get; set; }
 

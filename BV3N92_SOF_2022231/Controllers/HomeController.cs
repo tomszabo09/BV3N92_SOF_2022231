@@ -17,7 +17,6 @@ namespace Backend.Controllers
 		private readonly SignInManager<SiteUser> _signInManager;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
-		private MatchAlertModel MatchAlert { get; set; }
 
 		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager)
 		{
@@ -35,7 +34,7 @@ namespace Backend.Controllers
 		}
 		public IActionResult Matched()
 		{
-			return View(MatchAlert);
+			return View(_userManager);
 		}
 		public IActionResult Visitor()
 		{
@@ -238,7 +237,6 @@ namespace Backend.Controllers
 			LikedUser thisUserLiked = likedUser.LikedUsers.FirstOrDefault(t => t.WhoLikedId == user.Id);
 			if (thisUserLiked != null)
 			{
-				MatchAlert = new MatchAlertModel(userId); // TODO
 				user.MatchedUsers.Add(new MatchedUser { LikedBy = user, LikedById = user.Id, WhoLiked = likedUser, WhoLikedId = likedUser.Id });
 				likedUser.MatchedUsers.Add(new MatchedUser { LikedBy = likedUser, LikedById = likedUser.Id, WhoLiked = user, WhoLikedId = user.Id });
 

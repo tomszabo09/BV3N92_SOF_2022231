@@ -1,10 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @inject UserManager<SiteUser> UserManager
-@model MatchAlertModel
 
 @{
-	string id = Model.MatchId;
-	SiteUser match = UserManager.Users.FirstOrDefault(t => t.Id == Model.MatchId);
+	var currentUser = await UserManager.GetUserAsync(User);
+
+	var match = UserManager.Users.Where(u => u.MatchedUsers.FirstOrDefault(t => t.WhoLikedId == currentUser.Id && !t.Notified) != null).FirstOrDefault();
+
+	if (match != null)
+	{
+		UserManager.Users.Where(u => u.MatchedUsers.FirstOrDefault(t => t.WhoLikedId == currentUser.Id && !t.Notified) != null).FirstOrDefault().MatchedUsers.First(t => t.WhoLikedId == currentUser.Id && !t.Notified).Notified = true;
+	}
 }
 
 <body>
@@ -59,7 +64,7 @@
 					<h5 class="card-title">@match.Gender</h5>
 					<h6 class="card-subtitle mb-2 text-muted">@match.Age</h6>
 					<p class="card-text">@match.Bio</p>
-					<a href="/Home/Match" class="btn btn-danger">OK</a>
+				<a href="/Home/Match" class="btn btn-success">OK</a>
 				</div>
 			</div>
 		</div>
