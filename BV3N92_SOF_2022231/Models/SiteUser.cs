@@ -12,11 +12,7 @@ namespace Backend.Models
 
 	public enum Orientation
 	{
-		Straight, Gay, Lesbian, Bisexual, Heterosexual, NonBinary, Asexual, Pansexual, Queer
-	}
-	public enum Education
-	{
-		None, Elementary, HighSchool, Bachelor, Master, PhD
+		Straight, Gay, Bisexual
 	}
 
 	public class SiteUser : IdentityUser
