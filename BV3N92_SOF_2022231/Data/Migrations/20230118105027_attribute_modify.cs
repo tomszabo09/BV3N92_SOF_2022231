@@ -4,22 +4,22 @@
 
 namespace Backend.Data.Migrations
 {
-    public partial class attribute_modify : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<string>(
-                name: "UId",
-                table: "AspNetUsers",
-                type: "nvarchar(max)",
-                nullable: true);
-        }
+	public partial class attribute_modify : Migration
+	{
+		protected override void Up(MigrationBuilder migrationBuilder)
+		{
+			migrationBuilder.AddColumn<string>(
+				name: "UId",
+				table: "AspNetUsers",
+				type: "nvarchar(max)",
+				nullable: true);
+		}
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "UId",
-                table: "AspNetUsers");
-        }
-    }
+		protected override void Down(MigrationBuilder migrationBuilder)
+		{
+			migrationBuilder.DropColumn(
+				name: "UId",
+				table: "AspNetUsers");
+		}
+	}
 }

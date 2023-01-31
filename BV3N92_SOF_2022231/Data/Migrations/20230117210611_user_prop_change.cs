@@ -4,21 +4,32 @@
 
 namespace Backend.Data.Migrations
 {
-	public partial class attribute_remove : Migration
+	public partial class user_prop_change : Migration
 	{
 		protected override void Up(MigrationBuilder migrationBuilder)
 		{
 			migrationBuilder.DropColumn(
-				name: "UId",
+				name: "Height",
+				table: "AspNetUsers");
+
+			migrationBuilder.DropColumn(
+				name: "LastName",
 				table: "AspNetUsers");
 		}
 
 		protected override void Down(MigrationBuilder migrationBuilder)
 		{
-			migrationBuilder.AddColumn<string>(
-				name: "UId",
+			migrationBuilder.AddColumn<int>(
+				name: "Height",
 				table: "AspNetUsers",
-				type: "nvarchar(max)",
+				type: "int",
+				nullable: true);
+
+			migrationBuilder.AddColumn<string>(
+				name: "LastName",
+				table: "AspNetUsers",
+				type: "nvarchar(30)",
+				maxLength: 30,
 				nullable: true);
 		}
 	}
