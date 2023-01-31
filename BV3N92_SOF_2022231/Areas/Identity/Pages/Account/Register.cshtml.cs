@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.SignalR;
+using Backend.Hubs;
 
 namespace Backend.Areas.Identity.Pages.Account
 {
@@ -34,13 +36,15 @@ namespace Backend.Areas.Identity.Pages.Account
 		private readonly IEmailSender _emailSender;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
+		IHubContext<UserEventsHub> _hub;
 
 		public RegisterModel(
 			UserManager<SiteUser> userManager,
 			IUserStore<SiteUser> userStore,
 			SignInManager<SiteUser> signInManager,
 			ILogger<RegisterModel> logger,
-			IEmailSender emailSender)
+			IEmailSender emailSender,
+			IHubContext<UserEventsHub> hub)
 		{
 			var builder = WebApplication.CreateBuilder();
 
@@ -52,6 +56,7 @@ namespace Backend.Areas.Identity.Pages.Account
 			_emailSender = emailSender;
 			serviceClient = new BlobServiceClient(builder.Configuration.GetConnectionString("Blobservice"));
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
+			_hub = hub;
 		}
 
 		[BindProperty]
@@ -169,6 +174,8 @@ namespace Backend.Areas.Identity.Pages.Account
 
 					await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
 						$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+					await _hub.Clients.All.SendAsync("userCreated", user);
 
 					if (_userManager.Options.SignIn.RequireConfirmedAccount)
 					{
