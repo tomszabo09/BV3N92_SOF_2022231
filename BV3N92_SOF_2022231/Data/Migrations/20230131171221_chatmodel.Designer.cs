@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230131171221_chatmodel")]
+    partial class chatmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,40 +24,10 @@ namespace Backend.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Backend.Models.ChatMessageModel", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ChatModelId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatModelId");
-
-                    b.ToTable("ChatMessageModel");
-                });
-
             modelBuilder.Entity("Backend.Models.ChatModel", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -146,6 +118,32 @@ namespace Backend.Data.Migrations
                     b.HasIndex("LikedById");
 
                     b.ToTable("MatchedUser");
+                });
+
+            modelBuilder.Entity("Backend.Models.MessageModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ChatModelId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatModelId");
+
+                    b.ToTable("MessageModel");
                 });
 
             modelBuilder.Entity("Backend.Models.Picture", b =>
@@ -411,13 +409,6 @@ namespace Backend.Data.Migrations
                     b.HasDiscriminator().HasValue("SiteUser");
                 });
 
-            modelBuilder.Entity("Backend.Models.ChatMessageModel", b =>
-                {
-                    b.HasOne("Backend.Models.ChatModel", null)
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatModelId");
-                });
-
             modelBuilder.Entity("Backend.Models.DislikedUser", b =>
                 {
                     b.HasOne("Backend.Models.SiteUser", "DislikedBy")
@@ -460,6 +451,13 @@ namespace Backend.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("LikedBy");
+                });
+
+            modelBuilder.Entity("Backend.Models.MessageModel", b =>
+                {
+                    b.HasOne("Backend.Models.ChatModel", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatModelId");
                 });
 
             modelBuilder.Entity("Backend.Models.Picture", b =>

@@ -10,6 +10,7 @@ namespace Backend.Data
 		public DbSet<SiteUser> Users { get; set; }
 		public DbSet<LikedUser> LikedUsers { get; set; }
 		public DbSet<DislikedUser> DislikedUsers { get; set; }
+		public DbSet<ChatModel> Chats { get; set; }
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
 		{

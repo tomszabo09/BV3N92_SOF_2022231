@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Backend.Data;
 using Backend.Helpers;
 using Backend.Hubs;
 using Backend.Models;
@@ -17,14 +18,16 @@ namespace Backend.Controllers
 		private readonly ILogger<HomeController> _logger;
 		private readonly UserManager<SiteUser> _userManager;
 		private readonly SignInManager<SiteUser> _signInManager;
+		ApplicationDbContext _ctx;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
 		IHubContext<UserEventsHub> _hub;
 
-		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager, IHubContext<UserEventsHub> hub)
+		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager, IHubContext<UserEventsHub> hub, ApplicationDbContext ctx)
 		{
 			var builder = WebApplication.CreateBuilder();
 
+			_ctx = ctx;
 			_logger = logger;
 			_userManager = userManager;
 			_signInManager = signInManager;
@@ -85,6 +88,21 @@ namespace Backend.Controllers
 		}
 
 		[Authorize]
+		[HttpPost]
+        public async Task<IActionResult> CreateChat(string name)
+        {
+			_ctx.Chats.Add(new ChatModel
+			{
+				Name = name,
+
+			});
+
+			await _ctx.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Chat));
+        }
+
+        [Authorize]
 		public async Task<IActionResult> EditProfileAsync()
 		{
 			var user = await _userManager.GetUserAsync(User);
