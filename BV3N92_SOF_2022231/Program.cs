@@ -1,4 +1,5 @@
 using Backend.Data;
+using Backend.Hubs;
 using Backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ builder.Services.AddDefaultIdentity<SiteUser>(options =>
 }).AddRoles<IdentityRole>()
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -38,6 +39,8 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.MapHub<UserEventsHub>("/userEvents");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
