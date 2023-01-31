@@ -11,7 +11,7 @@
 		.Where(u => currentUser.LikedUsers.All(l => l.WhoLikedId != u.Id) && currentUser.DislikedUsers.All(d => d.WhoDislikedId != u.Id))
 		.ToList();
 
-	
+
 	List<string> userHobbies = new List<string>();
 	foreach (var hobby in currentUser.Hobbies)
 	{
@@ -26,19 +26,42 @@
 	List<Tuple<double, SiteUser>> judgedUsers = new List<Tuple<double, SiteUser>>();
 	foreach (var user in availableUsers)
 	{
-		score = 0;
-		foreach (var hobby in user.Hobbies)
+		if (IsPotentialUser(user))
 		{
-			if (hobby.IsChecked && userHobbies.FirstOrDefault(t => t == hobby.Name) != null)
+			score = 0;
+			foreach (var hobby in user.Hobbies)
 			{
-				++score;
+				if (hobby.IsChecked && userHobbies.FirstOrDefault(t => t == hobby.Name) != null)
+				{
+					++score;
+				}
 			}
+			ageDiff = Math.Abs(currentUser.Age - user.Age);
+			score -= ageDiff * 0.25;
+			judgedUsers.Add(new Tuple<double, SiteUser>(score, user));
 		}
-		ageDiff = Math.Abs(currentUser.Age - user.Age);
-		score -= ageDiff * 0.25;
-		judgedUsers.Add(new Tuple<double, SiteUser>(score, user));
 	}
 	judgedUsers = judgedUsers.OrderBy(t => t.Item1).Reverse().ToList();
+
+	bool IsPotentialUser(SiteUser user)
+	{
+		return IsStraight(user) || IsGay(user) || IsBisexual(user);
+	}
+
+	bool IsStraight(SiteUser user)
+	{
+		return user.Orientation == Orientation.Straight && currentUser.Orientation == Orientation.Straight && user.Gender != currentUser.Gender;
+	}
+
+	bool IsGay(SiteUser user)
+	{
+		return currentUser.Orientation == Orientation.Gay && user.Orientation == Orientation.Gay && user.Gender == currentUser.Gender;
+	}
+
+	bool IsBisexual(SiteUser user)
+	{
+		return currentUser.Orientation == Orientation.Bisexual && ((user.Orientation == Orientation.Gay && user.Gender == currentUser.Gender) || (user.Orientation == Orientation.Straight && user.Gender != currentUser.Gender) || user.Orientation == Orientation.Bisexual);
+	}
 
 	List<SiteUser> orderedUsers = new List<SiteUser>();
 	for (int i = 0; i < judgedUsers.Count; i++)
