@@ -1,6 +1,4 @@
-﻿using Backend.Helpers;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,11 +12,7 @@ namespace Backend.Models
 
 	public enum Orientation
 	{
-		Straight, Gay, Lesbian, Bisexual, Heterosexual, NonBinary, Asexual, Pansexual, Queer
-	}
-	public enum Education
-	{
-		None, Elementary, HighSchool, Bachelor, Master, PhD
+		Straight, Gay, Bisexual
 	}
 
 	public class SiteUser : IdentityUser
@@ -44,12 +38,18 @@ namespace Backend.Models
 		public string ProfilePictureUrl { get; set; }
 
 		[NotMapped]
+		public virtual List<Hobby> Hobbies { get; set; }
+
+		[NotMapped]
 		public virtual ICollection<Picture> Pictures { get; set; }
 
         [NotMapped]
         public virtual ICollection<LikedUser> LikedUsers { get; set; }
 
-        [NotMapped]
+		[NotMapped]
+		public virtual ICollection<MatchedUser> MatchedUsers { get; set; }
+
+		[NotMapped]
         public virtual ICollection<DislikedUser> DislikedUsers { get; set; }
 
         public SiteUser()
@@ -57,6 +57,7 @@ namespace Backend.Models
 			this.Pictures = new List<Picture>();
 			this.LikedUsers = new List<LikedUser>();
             this.DislikedUsers = new List<DislikedUser>();
+			this.Hobbies = new List<Hobby>();
         }
 	}
 }

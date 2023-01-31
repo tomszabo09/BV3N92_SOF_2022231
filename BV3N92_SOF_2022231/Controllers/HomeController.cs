@@ -32,6 +32,10 @@ namespace Backend.Controllers
 		{
 			return View(_userManager);
 		}
+		public IActionResult Matched()
+		{
+			return View(_userManager);
+		}
 		public IActionResult Visitor()
 		{
 			return View();
@@ -87,6 +91,19 @@ namespace Backend.Controllers
 			editUser.Gender = user.Gender;
 			editUser.Bio = user.Bio;
 			editUser.ProfilePictureUrl = user.ProfilePictureUrl;
+			editUser.Hobbies = user.Hobbies;
+
+			foreach (var item in editUser.Hobbies)
+			{
+				if (item.IsChecked)
+				{
+					editUser.HobbyNames.Add("true");
+				}
+				else
+				{
+					editUser.HobbyNames.Add("false");
+				}
+			}
 
 			return View(editUser);
 		}
@@ -102,6 +119,15 @@ namespace Backend.Controllers
 			user.Bio = editUser.Bio;
 			user.Gender = editUser.Gender;
 			user.Orientation = editUser.Orientation;
+
+			for (int i = 0; i < user.Hobbies.Count; ++i)
+			{
+				Hobby current = user.Hobbies[i];
+				if (editUser.HobbyNames.FirstOrDefault(t => t == current.Name) != null && !current.IsChecked)
+				{
+					user.Hobbies[i].IsChecked = true;
+				}
+			}
 
 			BlobClient blobClient;
 
@@ -207,6 +233,16 @@ namespace Backend.Controllers
 			var likedUser = await _userManager.FindByIdAsync(userId);
 
 			user.LikedUsers.Add(new LikedUser { LikedBy = user, LikedById = user.Id, WhoLiked = likedUser, WhoLikedId = likedUser.Id });
+
+			LikedUser thisUserLiked = likedUser.LikedUsers.FirstOrDefault(t => t.WhoLikedId == user.Id);
+			if (thisUserLiked != null)
+			{
+				user.MatchedUsers.Add(new MatchedUser { LikedBy = user, LikedById = user.Id, WhoLiked = likedUser, WhoLikedId = likedUser.Id });
+				likedUser.MatchedUsers.Add(new MatchedUser { LikedBy = likedUser, LikedById = likedUser.Id, WhoLiked = user, WhoLikedId = user.Id });
+
+				await _userManager.UpdateAsync(user);
+				return RedirectToAction(nameof(Matched));
+			}
 
 			await _userManager.UpdateAsync(user);
 			return RedirectToAction(nameof(Match));

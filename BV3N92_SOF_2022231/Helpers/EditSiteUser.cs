@@ -26,6 +26,10 @@ namespace Backend.Helpers
 		[StringLength(500)]
 		public string Bio { get; set; }
 
+		public List<Hobby> Hobbies { get; set; }
+
+		public List<string> HobbyNames { get; set; }
+
 		public string ProfilePictureUrl { get; set; }
 
 		public IFormFile? ProfilePicture { get; set; }
@@ -35,6 +39,8 @@ namespace Backend.Helpers
 		public EditSiteUser()
 		{
 			UserPictures = new List<IFormFile?>();
+			Hobbies = new List<Hobby>();
+			HobbyNames = new List<string>();
 		}
 	}
 }

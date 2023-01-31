@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230128161339_hobbies")]
+    partial class hobbies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,29 +44,6 @@ namespace Backend.Data.Migrations
                     b.ToTable("DislikedUsers");
                 });
 
-            modelBuilder.Entity("Backend.Models.Hobby", b =>
-                {
-                    b.Property<string>("HobbyId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsChecked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("HobbyId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Hobby");
-                });
-
             modelBuilder.Entity("Backend.Models.LikedUser", b =>
                 {
                     b.Property<string>("Id")
@@ -83,29 +62,6 @@ namespace Backend.Data.Migrations
                     b.HasIndex("LikedById");
 
                     b.ToTable("LikedUsers");
-                });
-
-            modelBuilder.Entity("Backend.Models.MatchedUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LikedById")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("Notified")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("WhoLikedId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LikedById");
-
-                    b.ToTable("MatchedUser");
                 });
 
             modelBuilder.Entity("Backend.Models.Picture", b =>
@@ -377,32 +333,10 @@ namespace Backend.Data.Migrations
                     b.Navigation("DislikedBy");
                 });
 
-            modelBuilder.Entity("Backend.Models.Hobby", b =>
-                {
-                    b.HasOne("Backend.Models.SiteUser", "User")
-                        .WithMany("Hobbies")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Backend.Models.LikedUser", b =>
                 {
                     b.HasOne("Backend.Models.SiteUser", "LikedBy")
                         .WithMany("LikedUsers")
-                        .HasForeignKey("LikedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LikedBy");
-                });
-
-            modelBuilder.Entity("Backend.Models.MatchedUser", b =>
-                {
-                    b.HasOne("Backend.Models.SiteUser", "LikedBy")
-                        .WithMany("MatchedUsers")
                         .HasForeignKey("LikedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -476,11 +410,7 @@ namespace Backend.Data.Migrations
                 {
                     b.Navigation("DislikedUsers");
 
-                    b.Navigation("Hobbies");
-
                     b.Navigation("LikedUsers");
-
-                    b.Navigation("MatchedUsers");
 
                     b.Navigation("Pictures");
                 });
