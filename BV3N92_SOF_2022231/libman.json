@@ -9,6 +9,11 @@
         "dist/browser/signalr.min.js",
         "dist/browser/signalr.js"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "Glide.js@3.6.0",
+      "destination": "wwwroot/lib/Glide.js/"
     }
   ]
 }
