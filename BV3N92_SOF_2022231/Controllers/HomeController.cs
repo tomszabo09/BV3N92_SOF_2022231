@@ -108,7 +108,7 @@ namespace Backend.Controllers
 			if (editUser.ProfilePicture != null)
 			{
 				var profPic = containerClient.GetBlobs().Where(x => x.Name.Contains(user.Id + "_profilepicture")).FirstOrDefault();
-				var num = profPic.Name.Last() - '0';
+				var num = profPic?.Name.Last() - '0';
 
 				blobClient = containerClient.GetBlobClient(user.Id + "_profilepicture_" + num);
 				await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
@@ -126,7 +126,7 @@ namespace Backend.Controllers
 				user.ProfilePictureUrl = blobClient.Uri.AbsoluteUri;
 			}
 
-			if (editUser.UserPictures.Count > 0)
+			if (editUser.UserPictures?.Count > 0)
 			{
 				foreach (var picture in editUser.UserPictures)
 				{
