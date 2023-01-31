@@ -16,7 +16,6 @@
             }
 	    }
     }
-
 }
 
 <body>
@@ -101,3 +100,20 @@
         </ul>
     }
 </body>
+
+@section Scripts {
+	<script src="~/js/signalr/dist/browser/signalr.js"></script>
+	<script>
+		$(function () {
+			var connection = new signalR.HubConnectionBuilder().withUrl("/userEvents").build();
+
+			connection.on("userModified", function () {
+				location.reload();
+			});
+
+			connection.start().catch(function (err) {
+				return console.error(err.toString());
+			});
+		});
+	</script>
+}

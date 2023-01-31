@@ -55,6 +55,10 @@
 				location.reload();
 			});
 
+			connection.on("userModified", function () {
+				location.reload();
+			});
+
 			connection.start().catch(function (err) {
 				return console.error(err.toString());
 			});
