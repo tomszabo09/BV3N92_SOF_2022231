@@ -3,63 +3,80 @@
 @inject UserManager<SiteUser> UserManager
 
 @{
-	var currentUser = await UserManager.GetUserAsync(User);
+    var currentUser = await UserManager.GetUserAsync(User);
 }
 <body>
-	<header>
-		<nav class="navbar navbar-expand-lg navbar-light">
-			<div class="container-fluid">
-				<h1>
-					<a class="btn-link text-white" asp-area="" asp-controller="Home" asp-action="Index">UniSex</a>
-				</h1>
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-						aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-					<ul class="navbar-nav flex-grow-1">
-						<li class="nav-item">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <h1>
+                    <a class="btn-link text-white" asp-area="" asp-controller="Home" asp-action="Index">UniSex</a>
+                </h1>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
 
-						</li>
-					</ul>
-					<partial name="_LoginPartial" />
-				</div>
-			</div>
-		</nav>
-	</header>
-	<div class="col d-flex justify-content-center">
-		<h1 style="color:white">My Profile</h1>
-	</div>
-	<div class="col d-flex justify-content-center">
-		<div class="card" style="width: 18rem;">
-			<img class="card-img-top" src="@currentUser.ProfilePictureUrl" alt="Card image cap">
-			<div class="card-body">
-				<h5 class="card-title">@currentUser.FirstName      @currentUser.Age</h5>
-				<p class="card-text">@currentUser.Bio</p>
-				<a href="/Home/EditProfile" class="btn btn-primary">Edit Profile</a>
-				<br />
-				<br />
-				@Html.ActionLink("Delete Profile", "DeleteUser", "Home", null,  new { @class="btn btn-warning", onclick="return confirm('Are you sure you want to delete your profile?')" })
-			</div>
-		</div>
-	</div>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="col d-flex justify-content-center">
+        <h1 style="color:white">My Profile</h1>
+    </div>
+    <div class="col d-flex justify-content-center">
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="@currentUser.ProfilePictureUrl" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">@currentUser.FirstName      @currentUser.Age</h5>
+                <p class="card-text">@currentUser.Bio</p>
+                <a href="/Home/EditProfile" class="btn btn-primary">Edit Profile</a>
+                <br />
+                <br />
+                @Html.ActionLink("Delete Profile", "DeleteUser", "Home", null,  new { @class="btn btn-warning", onclick="return confirm('Are you sure you want to delete your profile?')" })
+            </div>
+        </div>
+    </div>
 
-	<br />
-	<div class="col d-flex justify-content-center">
-		<h1 style="color:white">My Pictures</h1>
-	</div>
-	<br />
-	<div class="col d-flex justify-content-center">
-		@foreach (var picture in currentUser.Pictures)
-		{
-		<div class="hoverprofil">
-			<div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
-				<img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
-			</div>
-		</div>
+    <br />
+    <div class="col d-flex justify-content-center">
+        <h1 style="color:white">My Pictures</h1>
+    </div>
+    <br />
+    <div class="col d-flex justify-content-center">
+        @foreach (var picture in currentUser.Pictures)
+        {
 
-		}
-	</div>
+            <div class="card" style="width:10rem; height:fit-content; border-width:2px; margin:10px; object-fit: fill;">
+                <img class="card-img-top" src="@picture.PhotoUrl" alt="Card image cap">
+            </div>
+
+        }
+    </div>
+    <br />
+    <br />
+    <div class="col d-flex justify-content-center">
+        <h1 style="color:white">My Hobbies</h1>
+    </div>
+
+    <div class="row align-items-start">
+        @foreach (var hobby in @currentUser.Hobbies.Where(o => o.IsChecked == true))
+        {
+            <div class="row">
+                <div class="text-center">
+                    <br />
+                    <button class="btn btn-dark">@hobby.Name</button>
+                    <br />
+                </div>
+            </div>
+        }
+    </div>
 </body>
 
 
