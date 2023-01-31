@@ -110,14 +110,6 @@
 			}
 		}
 
-		document.getElementById("customImage-input").addEventListener("change", function () {
-			var file = this.files[0];
-			var reader = new FileReader();
-			reader.onloadend = function () {
-				document.getElementById("customImage-preview").src = reader.result;
-			}
-			reader.readAsDataURL(file);
-		});
 		document.getElementById("image-input").addEventListener("change", function () {
 			var file = this.files[0];
 			var reader = new FileReader();
