@@ -58,6 +58,7 @@ namespace Backend.Models
 			this.LikedUsers = new List<LikedUser>();
             this.DislikedUsers = new List<DislikedUser>();
 			this.Hobbies = new List<Hobby>();
-        }
+			this.MatchedUsers = new List<MatchedUser>();
+		}
 	}
 }
