@@ -2,29 +2,24 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Backend.Helpers;
+using Backend.Hubs;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using System.Net;
-using Newtonsoft.Json;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs;
-using Backend.Helpers;
 using Microsoft.AspNetCore.SignalR;
-using Backend.Hubs;
+using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Backend.Areas.Identity.Pages.Account;
 

@@ -43,20 +43,20 @@ namespace Backend.Models
 		[NotMapped]
 		public virtual ICollection<Picture> Pictures { get; set; }
 
-        [NotMapped]
-        public virtual ICollection<LikedUser> LikedUsers { get; set; }
+		[NotMapped]
+		public virtual ICollection<LikedUser> LikedUsers { get; set; }
 
 		[NotMapped]
 		public virtual ICollection<MatchedUser> MatchedUsers { get; set; }
 
 		[NotMapped]
-        public virtual ICollection<DislikedUser> DislikedUsers { get; set; }
+		public virtual ICollection<DislikedUser> DislikedUsers { get; set; }
 
-        public SiteUser()
+		public SiteUser()
 		{
 			this.Pictures = new List<Picture>();
 			this.LikedUsers = new List<LikedUser>();
-            this.DislikedUsers = new List<DislikedUser>();
+			this.DislikedUsers = new List<DislikedUser>();
 			this.Hobbies = new List<Hobby>();
 			this.MatchedUsers = new List<MatchedUser>();
 		}

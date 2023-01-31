@@ -47,7 +47,7 @@ namespace Backend.Data
 			.HasForeignKey(u => u.LikedById)
 			.OnDelete(DeleteBehavior.Cascade));
 
-			builder.Entity<SiteUser>(u => 
+			builder.Entity<SiteUser>(u =>
 			u.HasMany(m => m.MatchedUsers)
 			.WithOne(u => u.LikedBy)
 			.HasForeignKey(m => m.LikedById)
