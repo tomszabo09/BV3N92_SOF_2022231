@@ -76,6 +76,26 @@ namespace Backend.Controllers
 			return View();
 		}
 
+		[Authorize]
+		public async Task<IActionResult> RemoveMatch(string userId)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			var toBeRemoved = await _userManager.FindByIdAsync(userId);
+
+			user.LikedUsers.Remove(user.LikedUsers.FirstOrDefault(t => t.LikedById == user.Id != null));
+			user.MatchedUsers.Remove(user.MatchedUsers.FirstOrDefault(t => t.LikedById == user.Id != null));
+			user.DislikedUsers.Add(new DislikedUser { DislikedBy = user, DislikedById = user.Id, WhoDisliked = toBeRemoved, WhoDislikedId = toBeRemoved.Id });
+
+			toBeRemoved.LikedUsers.Remove(toBeRemoved.LikedUsers.FirstOrDefault(t => t.LikedById == toBeRemoved.Id != null));
+			toBeRemoved.MatchedUsers.Remove(toBeRemoved.MatchedUsers.FirstOrDefault(t => t.LikedById == toBeRemoved.Id != null));
+			toBeRemoved.DislikedUsers.Add(new DislikedUser { DislikedBy = toBeRemoved, DislikedById = toBeRemoved.Id, WhoDisliked = user, WhoDislikedId = user.Id });
+
+			await _userManager.UpdateAsync(user);
+			await _userManager.UpdateAsync(toBeRemoved);
+
+			return RedirectToAction(nameof(Index));
+		}
+
 
 		[Authorize]
 		[HttpGet("{id}")]
@@ -127,8 +147,8 @@ namespace Backend.Controllers
 			};
 
             _context.Messages.Add(message);
-
 			await _context.SaveChangesAsync();
+			await _hub.Clients.All.SendAsync("messageSent", message);
 
             return RedirectToAction(nameof(PrivateChat), new { id = userId, chatId });
         }

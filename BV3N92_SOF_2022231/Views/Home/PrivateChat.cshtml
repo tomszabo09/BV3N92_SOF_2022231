@@ -47,10 +47,6 @@
     </nav>
 </header>
 
-<h1>@ViewData["Title"]</h1>
-
-<p>Here are your matches you can chat with!</p>
-
 
 <div class="main-chat">
     <div class="side-menu">
@@ -87,66 +83,28 @@
     </div>
 </div>
 
-@section scripts {
-    <script src="~/js/signalr/dist/browser/signalr.js"></script>
-    <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
 
-    <script>
-        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+@section Scripts {
+	<script src="~/js/signalr/dist/browser/signalr.js"></script>
+	<script>
+	$(function () {
+			var connection = new signalR.HubConnectionBuilder().withUrl("/userEvents").build();
 
-        var _connectionId = '';
+			connection.on("userModified", function () {
+				location.reload();
+			});
 
-        connection.on("RecieveMessage", function (data) {
-            var message = document.createElement("div")
-            message.classList.add('message')
+			connection.on("userDeleted", function () {
+				location.reload();
+			});
 
-            var header = document.createElement("header")
-            header.appendChild(document.createTextNode(data.name))
+			connection.on("messageSent", function() {
+				location.reload();
+			})
 
-            var p = document.createElement("p")
-            p.appendChild(document.createTextNode(data.text))
-
-            var footer = document.createElement("footer")
-            footer.appendChild(document.createTextNode(data.timestamp))
-
-            message.appendChild(header);
-            message.appendChild(p);
-            message.appendChild(footer);
-
-            document.querySelector('.chat-body')body.append(message);
-        })
-
-        var joinRoom = functon() {
-            var url = '/Chat/JoinRoom/' + _connectionId + '/@Model.Name';
-            axios.post(url, null).then(res => {
-                console.log("Room joined", res);
-            }).catch(err => {
-                console.err("Failed to join room", res);
-            })
-        }
-
-        connection.start().then(function() {
-            connection.invoke('getConnectionId').then(function(connectionId) {
-                _connectionId = connectionId
-                joinRoom();
-            })
-        }).catch(function(err) {
-            console.log(err)
-        })
-
-        var form = null;
-
-        var sendMessage = function(event) {
-            event.preventDefault();
-
-            var data = new FormData(event.target);
-
-            axios.post('/Chat/SendMessage', data).then(res => {
-                console.log("Message sent")
-            }).catch(err => {
-                console.log("Failed to send message")
-            })
-        }
-
-    </script>
+			connection.start().catch(function (err) {
+				return console.error(err.toString());
+			});
+		});
+	</script>
 }
