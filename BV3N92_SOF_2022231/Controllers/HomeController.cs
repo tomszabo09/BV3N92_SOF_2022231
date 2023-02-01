@@ -125,9 +125,9 @@ namespace Backend.Controllers
                 Name = user.FirstName + ":",
                 Timestamp = DateTime.Now
 			};
-            var xd = _context.Messages;
+
             _context.Messages.Add(message);
-			
+
 			await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(PrivateChat), new { id = userId, chatId });
