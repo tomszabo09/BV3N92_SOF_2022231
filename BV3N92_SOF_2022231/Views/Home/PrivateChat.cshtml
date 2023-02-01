@@ -1,20 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<SiteUser> SignInManager
 @inject UserManager<SiteUser> UserManager
+@model ChatModel
 
 @{
     ViewData["Title"] = "Chat";
 
     var currentUser = await UserManager.GetUserAsync(User);
-
-    Random r = new Random();
-    List<string> motivationalMessages = new List<string>()
-    {
-    "Today is a nice day to live!",
-    "We hope you are having a nice day!",
-    "Today might be the day you fall in love!",
-    "Time to chat with someone!"
-    };
 }
 
 <header>
@@ -55,43 +47,64 @@
     </nav>
 </header>
 
-@if (currentUser.MatchedUsers.Count > 0)
-{
-    <div class="main-chat">
-        <div class="side-menu">
-            @foreach (var match in currentUser.MatchedUsers)
-            {
-                <div id="create-room-modal">
-                    <form asp-controller="Home" asp-action="CreateRoom">
-                        <input type="hidden" value="@UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName" id="create-room-btn" name="name" />
-                    </form>
-                </div>
-                <a class="room-button" asp-controller="Home" asp-action="PrivateChat" asp-route-id="@UserManager.Users.First(t => t.Id == match.WhoLikedId).Id">
-                    @UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName
-                </a>
-            }
-        </div>
-        <div class="chat-window">
-            <div class="chat-body">
-                <div class="motivational-message">
-                    @motivationalMessages[r.Next(0,5)]
-                </div>
-            </div>
-            <div class="chat-input">
-            </div>
-        </div>
+
+<div class="main-chat">
+    <div class="side-menu">
+        @foreach (var match in currentUser.MatchedUsers)
+        {
+            <a class="room-button" asp-controller="Home" asp-action="PrivateChat" asp-route-id="@UserManager.Users.First(t => t.Id == match.WhoLikedId).Id">
+                @UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName
+            </a>
+        }
     </div>
-}
-else
-{
-    <div class="col d-flex justify-content-center">
-            <div class="card" style="width: 18rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Currently you have no matches :(</h5>
-                </div>
-            </div>
+    <div class="chat-window">
+        <div class="chat-body">
+            @if (Model != null)
+            {
+                MessageModel[] orderedMessages = Model.Messages.OrderBy(t => t.Timestamp).ToArray();
+                for (int i = 0; i < orderedMessages.Length; ++i)
+                {
+                    <div class="message">
+                        <header>@orderedMessages[i].Name</header>
+                        <p>@orderedMessages[i].Text</p>
+                        <footer>@orderedMessages[i].Timestamp</footer>
+                    </div>
+                }
+            }
+
         </div>
+        <form class="chat-input" onsubmit="sendMessage(event)" asp-controller="Home" asp-action="CreateMessage">
+            <input type="hidden" name="chatId" value="@Model.Id" />
+            <input type="hidden" name="userId" value="@Model.Name" />
+            <input type="hidden" name="roomName" value="@Model.Name" />
+            <input type="text" name="input" />
+            <button type="submit" class="send-button">Send</button>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+	<script src="~/js/signalr/dist/browser/signalr.js"></script>
+	<script>
+	$(function () {
+			var connection = new signalR.HubConnectionBuilder().withUrl("/userEvents").build();
+
+			connection.on("userModified", function () {
+				location.reload();
+			});
+
+			connection.on("userDeleted", function () {
+				location.reload();
+			});
+
+			connection.on("messageSent", function() {
+				location.reload();
+			})
+
+			connection.start().catch(function (err) {
+				return console.error(err.toString());
+			});
+		});
+	</script>
 }
-
-
-<script src="~/js/site.js"></script>

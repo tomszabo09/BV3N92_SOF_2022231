@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Backend.Data;
 using Backend.Helpers;
 using Backend.Hubs;
 using Backend.Models;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace Backend.Controllers
@@ -17,14 +19,16 @@ namespace Backend.Controllers
 		private readonly ILogger<HomeController> _logger;
 		private readonly UserManager<SiteUser> _userManager;
 		private readonly SignInManager<SiteUser> _signInManager;
+		ApplicationDbContext _context;
 		BlobServiceClient serviceClient;
 		BlobContainerClient containerClient;
 		IHubContext<UserEventsHub> _hub;
 
-		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager, IHubContext<UserEventsHub> hub)
+		public HomeController(ILogger<HomeController> logger, UserManager<SiteUser> userManager, SignInManager<SiteUser> signInManager, IHubContext<UserEventsHub> hub, ApplicationDbContext context)
 		{
 			var builder = WebApplication.CreateBuilder();
 
+			_context = context;
 			_logger = logger;
 			_userManager = userManager;
 			_signInManager = signInManager;
@@ -32,48 +36,36 @@ namespace Backend.Controllers
 			containerClient = serviceClient.GetBlobContainerClient(builder.Configuration.GetConnectionString("ContainerName"));
 			_hub = hub;
 		}
+
+		[Authorize]
 		public IActionResult Match()
 		{
 			return View(_userManager);
 		}
+
+		[Authorize]
 		public IActionResult Matched()
 		{
 			return View(_userManager);
 		}
+
 		public IActionResult Visitor()
 		{
 			return View();
 		}
+
 		public IActionResult Index()
 		{
 			return View();
 		}
 
-		public async Task<IActionResult> Privacy()
-		{
-			var principal = this.User;
-			var user = await _userManager.GetUserAsync(principal);
-			return View();
-		}
-
-		public IActionResult Main()
+		public IActionResult Privacy()
 		{
 			return View();
 		}
 
 		[Authorize]
 		public IActionResult Profile()
-		{
-			return View();
-		}
-
-		public IActionResult Delete()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public IActionResult Manage()
 		{
 			return View();
 		}
@@ -85,6 +77,83 @@ namespace Backend.Controllers
 		}
 
 		[Authorize]
+		public async Task<IActionResult> RemoveMatch(string userId)
+		{
+			var user = await _userManager.GetUserAsync(User);
+			var toBeRemoved = await _userManager.FindByIdAsync(userId);
+
+			user.LikedUsers.Remove(user.LikedUsers.FirstOrDefault(t => t.LikedById == user.Id != null));
+			user.MatchedUsers.Remove(user.MatchedUsers.FirstOrDefault(t => t.LikedById == user.Id != null));
+			user.DislikedUsers.Add(new DislikedUser { DislikedBy = user, DislikedById = user.Id, WhoDisliked = toBeRemoved, WhoDislikedId = toBeRemoved.Id });
+
+			toBeRemoved.LikedUsers.Remove(toBeRemoved.LikedUsers.FirstOrDefault(t => t.LikedById == toBeRemoved.Id != null));
+			toBeRemoved.MatchedUsers.Remove(toBeRemoved.MatchedUsers.FirstOrDefault(t => t.LikedById == toBeRemoved.Id != null));
+			toBeRemoved.DislikedUsers.Add(new DislikedUser { DislikedBy = toBeRemoved, DislikedById = toBeRemoved.Id, WhoDisliked = user, WhoDislikedId = user.Id });
+
+			await _userManager.UpdateAsync(user);
+			await _userManager.UpdateAsync(toBeRemoved);
+
+			return RedirectToAction(nameof(Index));
+		}
+
+
+		[Authorize]
+		[HttpGet("{id}")]
+		public async Task<IActionResult> PrivateChat(string id, string chatId)
+		{
+            var user = await _userManager.GetUserAsync(User);
+            ChatModel chatModel = new ChatModel();
+			chatModel.Name = id;
+            if (chatId == null)
+			{
+                chatModel.Name += user.Id;
+            }
+			chatModel.Users.Add(user);
+            chatModel.Users.Add(_userManager.Users.FirstOrDefault(t => t.Id == id));
+
+			bool exists = true;
+
+            if (_context.Chats.FirstOrDefault(t => t.Name == chatModel.Name) == null && _context.Chats.FirstOrDefault(t => t.Name == user.Id + id) == null)
+			{
+				exists = false;
+                _context.Chats.Add(chatModel);
+                await _context.SaveChangesAsync();
+            }
+
+
+			if (chatId == null && !exists)
+			{
+                chatModel = _context.Chats.Include(t => t.Messages).FirstOrDefault(c => c.Id == chatModel.Id);
+            }
+			else
+			{
+                chatModel = _context.Chats.Include(t => t.Messages).FirstOrDefault(c => c.Name == chatModel.Name || (c.Name.StartsWith(user.Id) && c.Name.Contains(id.Substring(0, 10))));
+            }
+
+            return View(chatModel);
+		}
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CreateMessage(string chatId, string userId, string input)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var message = new MessageModel()
+			{
+				ChatId = chatId,
+				Text = input,
+                Name = user.FirstName + ":",
+                Timestamp = DateTime.Now
+			};
+
+            _context.Messages.Add(message);
+			await _context.SaveChangesAsync();
+			await _hub.Clients.All.SendAsync("messageSent", message);
+
+            return RedirectToAction(nameof(PrivateChat), new { id = userId, chatId });
+        }
+
+        [Authorize]
 		public async Task<IActionResult> EditProfileAsync()
 		{
 			var user = await _userManager.GetUserAsync(User);
@@ -222,11 +291,6 @@ namespace Backend.Controllers
 			editUser.ProfilePictureUrl = user.ProfilePictureUrl;
 
 			return View("EditProfile", editUser);
-		}
-
-		public IActionResult Bonus()
-		{
-			return View();
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
