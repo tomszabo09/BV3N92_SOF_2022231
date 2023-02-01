@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230131233914_ChatName")]
+    partial class ChatName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,8 +129,7 @@ namespace Backend.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ChatId")
-                        .IsRequired()
+                    b.Property<string>("ChatModelId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
@@ -144,7 +145,7 @@ namespace Backend.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChatId");
+                    b.HasIndex("ChatModelId");
 
                     b.ToTable("Messages");
                 });
@@ -458,13 +459,9 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Models.MessageModel", b =>
                 {
-                    b.HasOne("Backend.Models.ChatModel", "Chat")
+                    b.HasOne("Backend.Models.ChatModel", null)
                         .WithMany("Messages")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chat");
+                        .HasForeignKey("ChatModelId");
                 });
 
             modelBuilder.Entity("Backend.Models.Picture", b =>

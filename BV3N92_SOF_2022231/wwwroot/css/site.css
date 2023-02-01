@@ -48,6 +48,7 @@ body {
     background-color: #57446b;
     text-align: center;
     min-width: 60px;
+    text-align: center;
 }
 
     .room-button:hover {

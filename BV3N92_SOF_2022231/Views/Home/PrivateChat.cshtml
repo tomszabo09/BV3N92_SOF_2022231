@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<SiteUser> SignInManager
 @inject UserManager<SiteUser> UserManager
+@model ChatModel
 
 @{
     ViewData["Title"] = "Chat";
@@ -67,26 +68,26 @@
     </div>
     <div class="chat-window">
         <div class="chat-body">
-            <div class="message">
-                <header>Anton:</header>
-                <p>This is a test message</p>
-                <footer>16:00</footer>
-            </div>
-            <div class="message">
-                <header>Bob:</header>
-                <p>Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World</p>
-                <footer>16:02</footer>
-            </div>
-            <div class="message">
-                <header>Tom:</header>
-                <p>Hi World</p>
-                <footer>16:03</footer>
-            </div>
+            @if (Model != null)
+            {
+                MessageModel[] orderedMessages = Model.Messages.OrderBy(t => t.Timestamp).ToArray();
+                for (int i = 0; i < orderedMessages.Length; ++i)
+                {
+                    <div class="message">
+                        <header>@orderedMessages[i].Name</header>
+                        <p>@orderedMessages[i].Text</p>
+                        <footer>@orderedMessages[i].Timestamp</footer>
+                    </div>
+                }
+            }
+
         </div>
-        <div class="chat-input">
-            <input type="text" />
-            <button class="send-button">Send</button>
-        </div>
+        <form class="chat-input" asp-controller="Home" asp-action="CreateMessage">
+            <input type="hidden" name="chatId" value="@Model.Id" />
+            <input type="hidden" name="userId" value="@Model.Name" />
+            <input type="text" name="input" />
+            <button type="submit" class="send-button">Send</button>
+        </form>
     </div>
 </div>
 
