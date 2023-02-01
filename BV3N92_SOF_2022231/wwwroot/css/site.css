@@ -20,7 +20,11 @@ body {
 
 
 
-
+.motivational-message {
+    text-align: center;
+    margin-top: 170px;
+    font-size: 34px;
+}
 
 
 .side-menu {

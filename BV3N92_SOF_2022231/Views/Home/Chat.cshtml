@@ -6,6 +6,15 @@
     ViewData["Title"] = "Chat";
 
     var currentUser = await UserManager.GetUserAsync(User);
+
+    Random r = new Random();
+    List<string> motivationalMessages = new List<string>()
+    {
+    "Today is a nice day to live!",
+    "We hope you are having a nice day!",
+    "Today might be the day you fall in love!",
+    "Time to chat with someone!"
+    };
 }
 
 <header>
@@ -46,48 +55,43 @@
     </nav>
 </header>
 
-<h1>@ViewData["Title"]</h1>
-
-<p>Here are your matches you can chat with!</p>
-
-
-<div class="main-chat">
-    <div class="side-menu">
-        @foreach (var match in currentUser.MatchedUsers)
-        {
-            <div id="create-room-modal">
-                <form asp-controller="Home" asp-action="CreateRoom">
-                    <input type="hidden" value="@UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName" id="create-room-btn" name="name" />
-                </form>
+@if (currentUser.MatchedUsers.Count > 0)
+{
+    <div class="main-chat">
+        <div class="side-menu">
+            @foreach (var match in currentUser.MatchedUsers)
+            {
+                <div id="create-room-modal">
+                    <form asp-controller="Home" asp-action="CreateRoom">
+                        <input type="hidden" value="@UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName" id="create-room-btn" name="name" />
+                    </form>
+                </div>
+                <a class="room-button" asp-controller="Home" asp-action="PrivateChat" asp-route-id="@UserManager.Users.First(t => t.Id == match.WhoLikedId).Id">
+                    @UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName
+                </a>
+            }
+        </div>
+        <div class="chat-window">
+            <div class="chat-body">
+                <div class="motivational-message">
+                    @motivationalMessages[r.Next(0,5)]
+                </div>
             </div>
-            <a class="room-button" asp-controller="Home" asp-action="PrivateChat" asp-route-id="@UserManager.Users.First(t => t.Id == match.WhoLikedId).Id">
-                @UserManager.Users.First(t => t.Id == match.WhoLikedId).FirstName
-            </a>
-        }
-    </div>
-    <div class="chat-window">
-        <div class="chat-body">
-            <div class="message">
-                <header>Anton:</header>
-                <p>This is a test message</p>
-                <footer>16:00</footer>
-            </div>
-            <div class="message">
-                <header>Bob:</header>
-                <p>Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World</p>
-                <footer>16:02</footer>
-            </div>
-            <div class="message">
-                <header>Tom:</header>
-                <p>Hi World</p>
-                <footer>16:03</footer>
+            <div class="chat-input">
             </div>
         </div>
-        <div class="chat-input">
-            <input type="text" />
-            <button class="send-button">Send</button>
-        </div>
     </div>
-</div>
+}
+else
+{
+    <div class="col d-flex justify-content-center">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Currently you have no matches :(</h5>
+                </div>
+            </div>
+        </div>
+}
+
 
 <script src="~/js/site.js"></script>
