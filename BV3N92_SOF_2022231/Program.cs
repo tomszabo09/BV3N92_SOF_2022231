@@ -46,6 +46,7 @@ else
 }
 
 app.MapHub<UserEventsHub>("/userEvents");
+app.MapHub<ChatHub>("/chatHub");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
